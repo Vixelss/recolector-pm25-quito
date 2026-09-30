@@ -43,6 +43,21 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 - ~~P1. Modelo meteorológico de Open-Meteo~~ → resuelta en D15.
 - ~~P2. Emisiones duplicadas en la misma hora~~ → resuelta en D22.
 
+**Tareas pendientes** (al cierre del 29/09/2026, 22:20)
+- **T1. Confirmar que el cron se dispara solo.** Hasta las 22:20 solo habían corrido las 2 ejecuciones manuales. La programada de las 22:07 aún no aparecía; es habitual que GitHub tarde en activar un cron recién subido. Revisar el 30/09 en la pestaña Actions (etiqueta "schedule") y en la tabla `ejecuciones`. Si no hubo ninguna ejecución programada en toda la noche, investigar.
+- **T2. Verificar las horas objetivo en la base con la primera emisión real** (00:00 del 30/09): 48 horas por estación, de hora_emision a hora_emision + 47 h, sin duplicados (ver H25).
+- **T3. Pedir un token nuevo de WAQI** (ver H9) y actualizarlo en `.env` y en GitHub Secrets (`gh secret set WAQI_TOKEN`).
+- **T4. Checklist de 24–48 h (paso 8)**, según §11 de `CONTEXTO_RECOLECTOR.md`:
+  - ~24 mediciones por estación activa, sin duplicados.
+  - La hora de medición coincide con la de aqicn.org.
+  - 8 emisiones por día en `pronostico_clima` y en `pronostico_cams`, cada una con 384 filas.
+  - El Camal aparece solo como aviso.
+  - `ejecuciones` sin errores o con errores explicados.
+  - Además: consumo real de minutos de Actions y tamaño de la base en Neon.
+- **T5. Investigar si Open-Meteo guarda corridas anteriores de CAMS** (pendiente desde el contexto inicial; no bloquea). Si las guarda, permitiría reconstruir la comparación hacia atrás.
+- **T6. Actualizar `README.md`** con qué hace el recolector, cómo ejecutarlo en local y dónde están la bitácora y el esquema. Incluir la atribución obligatoria de AQICN (H10) y la nota de no redistribuir los datos archivados.
+- **T7. (Opcional) Unificar los finales de línea** con un `.gitattributes`. Git avisa de la conversión LF/CRLF en Windows. No afecta al funcionamiento.
+
 ---
 
 ## 2. Hallazgos al probar las fuentes (29/09/2026)
@@ -99,7 +114,7 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 | 2. Proyecto en Neon y `DATABASE_URL` | ✅ 29/09 | Conexión verificada. |
 | 3. Crear las tablas | ✅ 29/09 | `sql/esquema.sql` ejecutado y prueba de carga superada. |
 | 4. Script del recolector y prueba local | ✅ 29/09 | Pruebas a las 20:58 y 21:00 (H21) y prueba de emisión duplicada (D22). Datos de prueba borrados. |
-| 5. Revisar los datos en Neon | — | |
+| 5. Revisar los datos en Neon | ✅ 29/09 | Revisados en las pruebas locales y de GitHub (H18, H21, H25). La revisión con datos reales es parte del paso 8. |
 | 6. Secretos en GitHub | ✅ 29/09 | `WAQI_TOKEN` y `DATABASE_URL` cargados con `gh secret set`, leídos de `.env` sin mostrarlos. |
-| 7. Flujo de GitHub Actions | ⏳ | Flujo escrito (D24); falta subirlo y probarlo. No aplica la desactivación a los 60 días (H23). |
-| 8. Checklist a las 24–48 h | — | |
+| 7. Flujo de GitHub Actions | ⏳ 29/09 | Subido y probado con 2 ejecuciones manuales (H24, H25). Falta confirmar el primer disparo automático del cron (T1). No aplica la desactivación a los 60 días (H23). |
+| 8. Checklist a las 24–48 h | — | Programado para el 30/09 o el 01/10 (T4). |
