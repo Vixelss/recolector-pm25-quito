@@ -44,7 +44,7 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 - ~~P2. Emisiones duplicadas en la misma hora~~ → resuelta en D22.
 
 **Tareas pendientes** (al cierre del 29/09/2026, 22:20)
-- **T1. Confirmar que el cron se dispara solo.** Hasta las 22:20 solo habían corrido las 2 ejecuciones manuales. La programada de las 22:07 aún no aparecía; es habitual que GitHub tarde en activar un cron recién subido. Revisar el 30/09 en la pestaña Actions (etiqueta "schedule") y en la tabla `ejecuciones`. Si no hubo ninguna ejecución programada en toda la noche, investigar.
+- ~~T1. Confirmar que el cron se dispara solo~~ → **sí se dispara, pero muy pocas veces** (H26). Se abre T8.
 - **T2. Verificar las horas objetivo en la base con la primera emisión real** (00:00 del 30/09): 48 horas por estación, de hora_emision a hora_emision + 47 h, sin duplicados (ver H25).
 - **T3. Pedir un token nuevo de WAQI** (ver H9) y actualizarlo en `.env` y en GitHub Secrets (`gh secret set WAQI_TOKEN`).
 - **T4. Checklist de 24–48 h (paso 8)**, según §11 de `CONTEXTO_RECOLECTOR.md`:
@@ -56,6 +56,7 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
   - Además: consumo real de minutos de Actions y tamaño de la base en Neon.
 - **T5. Investigar si Open-Meteo guarda corridas anteriores de CAMS** (pendiente desde el contexto inicial; no bloquea). Si las guarda, permitiría reconstruir la comparación hacia atrás.
 - **T6. Actualizar `README.md`** con qué hace el recolector, cómo ejecutarlo en local y dónde están la bitácora y el esquema. Incluir la atribución obligatoria de AQICN (H10) y la nota de no redistribuir los datos archivados.
+- **T8. Resolver la baja frecuencia del cron (H26).** Sin esto no hay emisiones de pronóstico ni serie horaria de mediciones. Opciones a decidir con el autor.
 - **T7. (Opcional) Unificar los finales de línea** con un `.gitattributes`. Git avisa de la conversión LF/CRLF en Windows. No afecta al funcionamiento.
 
 ---
@@ -103,6 +104,19 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 - **H23.** Documentación oficial de GitHub: *"In a public repository, scheduled workflows are automatically disabled when no repository activity has occurred in 60 days."* **Solo aplica a repositorios públicos**, así que el repositorio privado del proyecto no necesita medidas contra la inactividad.
 - **H24. Primera ejecución en GitHub Actions (29/09, 22:00, manual).** Éxito en 20 s en total, de los cuales el recolector tardó 1,7 s, sin ningún tiempo de espera; en local tardaba entre 9 y 31 s. Los tiempos de espera vistos en local eran de la red local, no de las APIs. Guardó 8 mediciones y la caché de `pip` quedó almacenada. A las 22:00 AQICN seguía devolviendo la medición de las 19:00 (Cotocollao, la de las 18:00): un retraso de unas 3 h, coherente con H1.
 - **H25. Prueba de pronósticos en GitHub Actions (29/09, 22:09, manual y forzada).** Éxito: 384 filas de clima y 384 de CAMS en 2,9 s, con la caché de `pip` reutilizada. CAMS dio de nuevo 2 valores, 20,4 µg/m³ en el norte y 18,0 en el sur (confirma H14). La emisión de prueba (`hora_emision` 22:00, fuera de horario) **se borró** de las dos tablas de pronóstico. Su fila en `ejecuciones` (id 2, `incluye_pronosticos = true`) se conserva como registro de la prueba. Una consulta de revisión mostró mal las horas de Belisario (00:00, 00:00, 01:00). Al regenerar los datos con el mismo código, las horas salieron correctas (22:00, 23:00, 00:00…, 48 por estación y sin duplicados). Se volverá a comprobar en la base con la primera emisión real (00:00).
+- **H26. El cron de GitHub se dispara, pero muy pocas veces (revisión del 30/09, 16:30).** Desde que se subió el flujo (~22:00 del 29/09) hasta las 16:30 del 30/09 (~18 h) debían correr ~18 ejecuciones programadas; corrieron **solo 3**, todas con éxito:
+
+  | Ejecución | Creada (UTC) | Hora Ecuador | Retraso sobre el :07 | Mediciones |
+  |---|---|---|---|---|
+  | 36697142792 | 30/09 09:36 | 04:36 | 29 min | 7 |
+  | 36743815314 | 30/09 16:23 | 11:23 | 16 min | 7 |
+  | 36779214852 | 30/09 21:24 | 16:24 | 17 min | 7 |
+
+  - La primera ejecución programada llegó ~6,5 h después de subir el flujo, y luego hubo huecos de 5 a 7 h.
+  - **Consecuencia 1:** ninguna cayó en una hora de pronóstico (00, 03, …, 21), así que `pronostico_clima` y `pronostico_cams` siguen **vacías** (0 filas). T2 no se puede verificar todavía.
+  - **Consecuencia 2:** AQICN solo devuelve la última medición, así que las horas intermedias se pierden: hay 4 mediciones por estación activa (29 filas en total) en lugar de ~21.
+  - El Camal sigue apareciendo solo como aviso (correcto). Ninguna ejecución tuvo errores.
+  - GitHub documenta que las ejecuciones programadas pueden retrasarse o **descartarse** cuando hay alta carga; no garantiza la frecuencia. Con este comportamiento el cron de GitHub no sirve como único disparador.
 
 ---
 
@@ -116,5 +130,5 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 | 4. Script del recolector y prueba local | ✅ 29/09 | Pruebas a las 20:58 y 21:00 (H21) y prueba de emisión duplicada (D22). Datos de prueba borrados. |
 | 5. Revisar los datos en Neon | ✅ 29/09 | Revisados en las pruebas locales y de GitHub (H18, H21, H25). La revisión con datos reales es parte del paso 8. |
 | 6. Secretos en GitHub | ✅ 29/09 | `WAQI_TOKEN` y `DATABASE_URL` cargados con `gh secret set`, leídos de `.env` sin mostrarlos. |
-| 7. Flujo de GitHub Actions | ⏳ 29/09 | Subido y probado con 2 ejecuciones manuales (H24, H25). Falta confirmar el primer disparo automático del cron (T1). No aplica la desactivación a los 60 días (H23). |
+| 7. Flujo de GitHub Actions | ⚠️ 30/09 | Funciona cuando se dispara (5 de 5 con éxito), pero el cron solo corrió 3 veces en ~18 h (H26). Pendiente T8. No aplica la desactivación a los 60 días (H23). |
 | 8. Checklist a las 24–48 h | — | Programado para el 30/09 o el 01/10 (T4). |
