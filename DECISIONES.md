@@ -46,7 +46,7 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 
 **Tareas pendientes** (al cierre del 29/09/2026, 22:20)
 - ~~T1. Confirmar que el cron se dispara solo~~ → **sí se dispara, pero muy pocas veces** (H26). Se abre T8.
-- **T2. Verificar las horas objetivo en la base con la primera emisión real** (00:00 del 30/09): 48 horas por estación, de hora_emision a hora_emision + 47 h, sin duplicados (ver H25).
+- **T2. Verificar las horas objetivo en la base con la primera emisión puntual** (ej. 18:00 del 30/09; la atrasada de las 15:00 ya se verificó en H27): 48 horas por estación, de hora_emision a hora_emision + 47 h, sin duplicados (ver H25).
 - **T3. Pedir un token nuevo de WAQI** (ver H9) y actualizarlo en `.env` y en GitHub Secrets (`gh secret set WAQI_TOKEN`).
 - **T4. Checklist de 24–48 h (paso 8)**, según §11 de `CONTEXTO_RECOLECTOR.md`:
   - ~24 mediciones por estación activa, sin duplicados.
@@ -119,6 +119,10 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
   - El Camal sigue apareciendo solo como aviso (correcto). Ninguna ejecución tuvo errores.
   - GitHub documenta que las ejecuciones programadas pueden retrasarse o **descartarse** cuando hay alta carga; no garantiza la frecuencia. Con este comportamiento el cron de GitHub no sirve como único disparador.
 
+- **H27. Prueba de D26 en GitHub Actions (30/09, 16:50, dos ejecuciones manuales).**
+  - La primera (36781937058) **recuperó la emisión de las 15:00**: 384 filas de clima y 384 de CAMS, en 1,7 s. Es la primera emisión real en la base. La consulta fue a las 16:50, así que las horas objetivo van de 16:00 del 30/09 a 15:00 del 02/10: 48 por estación y sin duplicados. Le falta la hora 15:00, como se esperaba (D26, limitación 2).
+  - La segunda (36781996730) vio la emisión ya guardada (`pronósticos=ya guardados`) y no consultó Open-Meteo: 0 filas nuevas.
+  - Esto verifica T2 con una emisión atrasada. Falta verlo con una emisión puntual (debería empezar en `hora_emision`).
 ---
 
 ## 3. Avance
