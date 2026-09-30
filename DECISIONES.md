@@ -123,6 +123,7 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
   - La primera (36781937058) **recuperó la emisión de las 15:00**: 384 filas de clima y 384 de CAMS, en 1,7 s. Es la primera emisión real en la base. La consulta fue a las 16:50, así que las horas objetivo van de 16:00 del 30/09 a 15:00 del 02/10: 48 por estación y sin duplicados. Le falta la hora 15:00, como se esperaba (D26, limitación 2).
   - La segunda (36781996730) vio la emisión ya guardada (`pronósticos=ya guardados`) y no consultó Open-Meteo: 0 filas nuevas.
   - Esto verifica T2 con una emisión atrasada. Falta verlo con una emisión puntual (debería empezar en `hora_emision`).
+- **H28. Primer disparo automático de cron-job.org (30/09, 17:07:01, ejecución 36783653802).** Llegó puntual al segundo, frente a los 16 a 29 min de retraso del cron de GitHub (H26). Terminó con éxito y sin pronósticos, porque la emisión de las 15:00 ya estaba guardada. Guardó 0 mediciones nuevas porque AQICN aún no había publicado horas nuevas (retraso de H1). A las 17:22 la ejecución programada de GitHub de esa hora todavía no aparecía.
 ---
 
 ## 3. Avance
