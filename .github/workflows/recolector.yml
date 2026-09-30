@@ -2,20 +2,15 @@
 # El propio script decide si además toca guardar pronósticos (si falta la
 # emisión del bloque 00, 03, ..., 21 de Ecuador); ver DECISIONES.md (D2, D26).
 #
-# Disparadores (D27):
-#   - Principal: cron-job.org llama a la API de GitHub (workflow_dispatch)
-#     en el minuto 7 de cada hora. Es puntual; el cron de GitHub no lo es (H26).
-#   - Respaldo: el cron de GitHub de abajo. Si ambos corren en la misma hora
-#     no se duplican datos (claves únicas en todas las tablas).
+# Disparador (D27, D28): cron-job.org llama a la API de GitHub
+# (workflow_dispatch) en el minuto 7 de cada hora. No se usa `schedule`:
+# el cron de GitHub se saltaba la mayoría de las horas (H26) y, como
+# respaldo, solo consumía minutos del cupo. cron-job.org avisa por correo
+# si una llamada falla.
 
 name: Recolector PM2.5
 
 on:
-  schedule:
-    # Minuto 7 de cada hora (el cron de GitHub está en UTC; como el script
-    # calcula la hora de Ecuador por su cuenta, no hace falta convertir aquí).
-    # Se evita el minuto 0 porque es cuando GitHub acumula más retrasos (D4).
-    - cron: "7 * * * *"
   workflow_dispatch:
     # Lo usa cron-job.org cada hora, y también sirve para lanzarlo a mano
     # (pestaña Actions > Run workflow) en pruebas.
