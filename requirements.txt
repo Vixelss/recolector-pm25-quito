@@ -1,0 +1,4 @@
+# Dependencias del recolector (versiones fijas para que la ejecución sea reproducible)
+requests==2.34.2          # llamadas HTTP a AQICN y Open-Meteo
+psycopg[binary]==3.3.6    # cliente de PostgreSQL (Neon); "binary" evita compilar
+python-dotenv==1.2.3      # lee el archivo .env solo en ejecución local
