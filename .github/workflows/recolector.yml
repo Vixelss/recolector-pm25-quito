@@ -1,6 +1,12 @@
 # Flujo de GitHub Actions que ejecuta el recolector una vez por hora.
-# El propio script decide si además toca guardar pronósticos (horas
-# 00, 03, ..., 21 de Ecuador); ver DECISIONES.md (D2).
+# El propio script decide si además toca guardar pronósticos (si falta la
+# emisión del bloque 00, 03, ..., 21 de Ecuador); ver DECISIONES.md (D2, D26).
+#
+# Disparadores (D27):
+#   - Principal: cron-job.org llama a la API de GitHub (workflow_dispatch)
+#     en el minuto 7 de cada hora. Es puntual; el cron de GitHub no lo es (H26).
+#   - Respaldo: el cron de GitHub de abajo. Si ambos corren en la misma hora
+#     no se duplican datos (claves únicas en todas las tablas).
 
 name: Recolector PM2.5
 
@@ -11,10 +17,11 @@ on:
     # Se evita el minuto 0 porque es cuando GitHub acumula más retrasos (D4).
     - cron: "7 * * * *"
   workflow_dispatch:
-    # Disparador manual (pestaña Actions > Run workflow) para pruebas.
+    # Lo usa cron-job.org cada hora, y también sirve para lanzarlo a mano
+    # (pestaña Actions > Run workflow) en pruebas.
     inputs:
       forzar_pronosticos:
-        description: "Guardar pronósticos aunque no sea hora 00, 03, ..., 21"
+        description: "Pruebas: guardar pronósticos con la hora actual como emisión"
         type: boolean
         default: false
 

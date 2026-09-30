@@ -32,6 +32,14 @@ def _insertar(con: psycopg.Connection, tabla: str, filas: list[dict]) -> int:
         return cur.rowcount  # suma de filas realmente insertadas
 
 
+def emision_guardada(con, tabla: str, hora_emision: datetime) -> bool:
+    """Indica si la tabla de pronóstico ya tiene filas de esa emisión (D26)."""
+    with con.cursor() as cur:
+        cur.execute(f"SELECT EXISTS (SELECT 1 FROM {tabla} WHERE hora_emision = %s)",
+                    (hora_emision,))
+        return cur.fetchone()[0]
+
+
 def insertar_mediciones(con, filas: list[dict]) -> int:
     # La respuesta completa se guarda como JSONB.
     filas = [{**f, "respuesta_cruda": Jsonb(f["respuesta_cruda"])} for f in filas]

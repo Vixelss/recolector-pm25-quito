@@ -5,8 +5,9 @@
 
 Cada ejecución (D2):
   1. Siempre: guarda la última medición de AQICN de las 8 estaciones.
-  2. Solo en las horas 00, 03, ..., 21 de Ecuador: guarda también los
-     pronósticos de clima y de CAMS.
+  2. Guarda también los pronósticos de clima y de CAMS si todavía falta la
+     emisión del bloque de 3 horas actual (00, 03, ..., 21 de Ecuador). Así,
+     una ejecución atrasada (ej. 04:36) recupera la emisión de las 03:00 (D26).
   3. Registra la ejecución en la tabla `ejecuciones`.
 """
 
@@ -88,7 +89,7 @@ def main() -> int:
     configurar_registro()
     parser = argparse.ArgumentParser(description="Recolector de PM2.5 para Quito")
     parser.add_argument("--forzar-pronosticos", action="store_true",
-                        help="guardar pronósticos aunque no sea una hora 00, 03, ..., 21")
+                        help="guardar pronósticos con la hora actual como emisión (solo pruebas)")
     args = parser.parse_args()
 
     # En local lee el archivo .env; en GitHub Actions las variables ya existen
@@ -108,13 +109,33 @@ def main() -> int:
     # Un único instante de referencia: sirve como consultado_en y emitido_en (D12).
     iniciado_en = datetime.now(timezone.utc)
     hora_ecuador = iniciado_en.astimezone(config.ZONA_ECUADOR)
-    incluye_pronosticos = args.forzar_pronosticos or hora_ecuador.hour in config.HORAS_PRONOSTICO
-    # Hora en punto que identifica la emisión (ej. 21:07 -> 21:00). Si el
-    # recolector corre dos veces en la misma hora, la segunda se descarta (P2).
-    hora_emision = hora_ecuador.replace(minute=0, second=0, microsecond=0)
-    log.info("Inicio %s (hora Ecuador) | origen=%s | pronósticos=%s",
-             hora_ecuador.strftime("%Y-%m-%d %H:%M:%S"), origen,
-             "sí" + (" (forzado)" if args.forzar_pronosticos else "") if incluye_pronosticos else "no")
+    if args.forzar_pronosticos:
+        # Pruebas: emisión identificada por la hora en punto actual (D21).
+        hora_emision = hora_ecuador.replace(minute=0, second=0, microsecond=0)
+    else:
+        # Inicio del bloque de 3 horas actual (ej. 04:36 -> 03:00). Si el
+        # recolector corre dos veces en el mismo bloque, la segunda ejecución
+        # ve la emisión ya guardada y no consulta de nuevo (D22, D26).
+        hora_bloque = max(h for h in config.HORAS_PRONOSTICO if h <= hora_ecuador.hour)
+        hora_emision = hora_ecuador.replace(hour=hora_bloque, minute=0, second=0, microsecond=0)
+
+    # Qué pronósticos faltan en esta emisión. Se revisa cada tabla por separado:
+    # si antes falló solo CAMS, esta ejecución reintenta solo CAMS.
+    try:
+        with db.conectar(url_bd) as con:
+            falta_clima = args.forzar_pronosticos or not db.emision_guardada(
+                con, "pronostico_clima", hora_emision)
+            falta_cams = args.forzar_pronosticos or not db.emision_guardada(
+                con, "pronostico_cams", hora_emision)
+    except Exception as e:
+        log.error("No se pudo usar la base de datos: %s", ocultar(f"{type(e).__name__}: {e}"))
+        return 1
+    incluye_pronosticos = falta_clima or falta_cams
+    log.info("Inicio %s (hora Ecuador) | origen=%s | emisión %s | pronósticos=%s",
+             hora_ecuador.strftime("%Y-%m-%d %H:%M:%S"), origen, hora_emision.strftime("%H:%M"),
+             ("forzado" if args.forzar_pronosticos
+              else "faltan " + " y ".join(n for n, f in [("clima", falta_clima), ("CAMS", falta_cams)] if f)
+              if incluye_pronosticos else "ya guardados"))
 
     errores: list[str] = []
     avisos: list[str] = []
@@ -122,9 +143,10 @@ def main() -> int:
     # 1. Consultar las fuentes (antes de abrir la base de datos).
     mediciones = recolectar_mediciones(token, iniciado_en, errores, avisos)
     clima, cams = [], []
-    if incluye_pronosticos:
+    if falta_clima:
         clima = recolectar_pronostico(open_meteo.pronostico_clima, "Open-Meteo clima",
                                       hora_emision, iniciado_en, errores)
+    if falta_cams:
         cams = recolectar_pronostico(open_meteo.pronostico_cams, "Open-Meteo CAMS",
                                      hora_emision, iniciado_en, errores)
 
