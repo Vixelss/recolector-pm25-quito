@@ -36,6 +36,8 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 | D21 | 29/09 | Opción `--forzar-pronosticos` para pruebas manuales fuera de las horas 00, 03, …, 21. | Probar sin esperar. **Ojo:** genera emisiones fuera de horario; en el análisis se filtran por `hora_emision` (00, 03, …, 21). |
 | D22 | 29/09 | Nueva columna **`hora_emision`** (hora de Ecuador en punto: 00, 03, …, 21) en `pronostico_clima` y `pronostico_cams`. La clave única pasa a ser **(estacion_id, hora_emision, hora_objetivo)**. `emitido_en` se conserva como el momento real de la consulta. | Resuelve H22: si hay dos ejecuciones en la misma hora, se conserva la primera (la más cercana al horario previsto) y la segunda se descarta. Cada emisión queda identificada por una hora limpia, coincidente con los momentos de emisión del modelo propio. **Cambia la clave propuesta en el contexto inicial** (aprobado por el autor). Verificado: la segunda ejecución insertó 0 filas de pronóstico. |
 | D23 | 29/09 | Se borraron todos los datos de prueba (`TRUNCATE`). | Que la recolección real empiece limpia. |
+| D24 | 29/09 | Flujo `.github/workflows/recolector.yml` con estas características:<br>• cron `7 * * * *` (en UTC; el script calcula la hora de Ecuador)<br>• `workflow_dispatch` con la opción `forzar_pronosticos`<br>• `concurrency` para que nunca haya dos ejecuciones a la vez<br>• `timeout-minutes: 3`<br>• `permissions: contents: read`<br>• `actions/checkout@v7` y `actions/setup-python@v7` (Python 3.13 con `cache: pip`) | Aplica D2, D3 y D4. Se usan las versiones más recientes de las acciones oficiales al 29/09/2026. |
+| D25 | 29/09 | El autor delega en Claude todas las operaciones del repositorio: commits, push, secretos y Actions. Se instaló GitHub CLI 2.101.0 (`winget`). | Decisión del autor. |
 
 **Decisiones pendientes**
 - ~~P1. Modelo meteorológico de Open-Meteo~~ → resuelta en D15.
@@ -83,6 +85,7 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
   - El token apareció como `<oculto>` en los mensajes.
   - A las 21:00 AQICN seguía devolviendo la medición de las 19:00, así que no hubo mediciones nuevas. Es el comportamiento esperado.
 - **H22. Idempotencia de los pronósticos.** Repetir la ejecución en la misma hora **no** duplica mediciones, pero **sí crea una segunda emisión** de pronóstico, porque `emitido_en` cambia (21:00:20 frente a 21:00:38). Puede ocurrir si GitHub repite una ejecución o si se lanza una manual en una hora de pronóstico. Resuelto en D22.
+- **H23.** Documentación oficial de GitHub: *"In a public repository, scheduled workflows are automatically disabled when no repository activity has occurred in 60 days."* **Solo aplica a repositorios públicos**, así que el repositorio privado del proyecto no necesita medidas contra la inactividad.
 
 ---
 
@@ -95,6 +98,6 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 | 3. Crear las tablas | ✅ 29/09 | `sql/esquema.sql` ejecutado y prueba de carga superada. |
 | 4. Script del recolector y prueba local | ✅ 29/09 | Pruebas a las 20:58 y 21:00 (H21) y prueba de emisión duplicada (D22). Datos de prueba borrados. |
 | 5. Revisar los datos en Neon | — | |
-| 6. Secretos en GitHub | — | |
-| 7. Flujo de GitHub Actions | — | Confirmar que la desactivación a los 60 días no aplica a repositorios privados. |
+| 6. Secretos en GitHub | ✅ 29/09 | `WAQI_TOKEN` y `DATABASE_URL` cargados con `gh secret set`, leídos de `.env` sin mostrarlos. |
+| 7. Flujo de GitHub Actions | ⏳ | Flujo escrito (D24); falta subirlo y probarlo. No aplica la desactivación a los 60 días (H23). |
 | 8. Checklist a las 24–48 h | — | |

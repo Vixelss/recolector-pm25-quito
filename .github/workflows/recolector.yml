@@ -1,0 +1,62 @@
+# Flujo de GitHub Actions que ejecuta el recolector una vez por hora.
+# El propio script decide si además toca guardar pronósticos (horas
+# 00, 03, ..., 21 de Ecuador); ver DECISIONES.md (D2).
+
+name: Recolector PM2.5
+
+on:
+  schedule:
+    # Minuto 7 de cada hora (el cron de GitHub está en UTC; como el script
+    # calcula la hora de Ecuador por su cuenta, no hace falta convertir aquí).
+    # Se evita el minuto 0 porque es cuando GitHub acumula más retrasos (D4).
+    - cron: "7 * * * *"
+  workflow_dispatch:
+    # Disparador manual (pestaña Actions > Run workflow) para pruebas.
+    inputs:
+      forzar_pronosticos:
+        description: "Guardar pronósticos aunque no sea hora 00, 03, ..., 21"
+        type: boolean
+        default: false
+
+# Nunca dos ejecuciones a la vez: si una se retrasa, la siguiente espera.
+concurrency:
+  group: recolector
+  cancel-in-progress: false
+
+# El flujo solo necesita leer el código del repositorio.
+permissions:
+  contents: read
+
+jobs:
+  recolectar:
+    runs-on: ubuntu-latest
+    # Límite duro: sin él, un proceso colgado podría consumir hasta 6 h de
+    # minutos del cupo del repositorio privado (D3).
+    timeout-minutes: 3
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v7
+
+      - name: Instalar Python 3.13 (con caché de pip)
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip  # reutiliza los paquetes descargados en ejecuciones anteriores
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Ejecutar el recolector
+        env:
+          # Vienen de Settings > Secrets and variables > Actions.
+          # GitHub oculta automáticamente sus valores en los registros.
+          WAQI_TOKEN: ${{ secrets.WAQI_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          FORZAR: ${{ inputs.forzar_pronosticos }}
+        run: |
+          if [ "$FORZAR" = "true" ]; then
+            python -m recolector.main --forzar-pronosticos
+          else
+            python -m recolector.main
+          fi
