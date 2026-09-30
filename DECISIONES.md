@@ -49,7 +49,7 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 **Tareas pendientes** (al cierre del 29/09/2026, 22:20)
 - ~~T1. Confirmar que el cron se dispara solo~~ → **sí se dispara, pero muy pocas veces** (H26). Se abre T8.
 - **T2. Verificar las horas objetivo en la base con la primera emisión puntual** (18:00 del 30/09, la primera de la recolección oficial; la atrasada de las 15:00 ya se verificó en H27): 48 horas por estación, de hora_emision a hora_emision + 47 h, sin duplicados (ver H25).
-- **T3. Pedir un token nuevo de WAQI** (ver H9) y actualizarlo en `.env` y en GitHub Secrets (`gh secret set WAQI_TOKEN`).
+- ~~T3. Pedir un token nuevo de WAQI~~ → **descartada por el autor (30/09)**. Riesgo bajo: el token es gratuito, solo lee datos públicos, nunca se subió a GitHub y desde D14 se oculta en los mensajes. Si algún día falla (errores de AQICN en `ejecuciones`), se cambia en ese momento.
 - **T4. Checklist de 24–48 h (paso 8), desde el 01/10 a las 18:30** (24 h después del inicio oficial, D29), según §11 de `CONTEXTO_RECOLECTOR.md`:
   - ~24 mediciones por estación activa, sin duplicados.
   - La hora de medición coincide con la de aqicn.org.
