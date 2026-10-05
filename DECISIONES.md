@@ -173,6 +173,15 @@ Archivos en `D:/Catolica/Tesis/data/` (fuera del repositorio): CO, DIR, HUM, IUV
 - **R8. El documento QA/QC** describe los filtros aplicados: límites físicos, MAD (7×), percentiles p0,5 y p99,5, picos aislados (4×MAD), y que un valor solo se invalida si cumple 2 o más criterios. No menciona ceros, unidades ni la convención de la hora. Sirve como cita en la metodología.
 - **R9. Implicación para la tesis:** para comparar CAMS con la REMMAQ entre abril y agosto conviene usar **Belisario, Carapungo, Centro, Cotocollao y Tumbaco** (más del 95 %), y Los Chillos con cuidado. El Camal, Guamaní y San Antonio no sirven en ese periodo.
 
+- **R10. Descarga de las corridas pasadas de CAMS (D31), 05/10.** Quedaron **171 corridas de las 00 UTC** (del 02/04 al 05/10), con 121 horas cada una y 8 estaciones: 165.528 filas y 24 MB en Neon. No estaban disponibles las de los mismos 16 días de H31. La red local cortó algunas conexiones, pero los reintentos las recuperaron todas.
+- **R11. Primera comparación de CAMS con la REMMAQ (PM2.5, 02/04–31/08/2026). Preliminar, para orientar la tesis; no es el análisis final.** Supuestos: la hora de la REMMAQ es local (lo confirma el pico de la mañana, a las 06–08) y los ceros en rachas de 3 o más horas se tratan como faltantes (R5).
+  - **CAMS subestima mucho:** media observada ~11,4 µg/m³ frente a ~5,5–7 de CAMS (sesgo de −3,3 a −7,2 según la estación).
+  - **Casi no sigue la variación horaria:** la correlación horaria por estación va de −0,08 a 0,13; con medias diarias sube solo a 0,27. El RMSE es de ~10 µg/m³ en todos los horizontes, de 1 a 5 días.
+  - **"Spin-down" al inicio de cada corrida:** en las primeras ~4 h (19:00–23:00 de Ecuador) CAMS da ~12–13 µg/m³, cerca de lo observado, porque parte del análisis que asimila datos. En ~12 h baja a 5–8 µg/m³. Por eso el primer día tiene menos sesgo (−4,2) que los siguientes (−5,8).
+  - **El ciclo diario de CAMS está invertido:** su máximo es nocturno (19:00–23:00), mientras que lo observado tiene el pico a las 06–08 (tráfico) y otro menor a las 17–18.
+  - Las estaciones del norte (Belisario, Carapungo y Cotocollao) reciben de CAMS exactamente la misma serie, y las del sur otra (confirma H14).
+  - **Implicación:** CAMS global es una referencia fácil de superar. El modelo propio debería ganarle con holgura, sobre todo en el ciclo diario. Conviene presentarlo así en la tesis y no como un rival fuerte.
+
 ---
 
 ## 4. Avance
@@ -187,3 +196,4 @@ Archivos en `D:/Catolica/Tesis/data/` (fuera del repositorio): CO, DIR, HUM, IUV
 | 6. Secretos en GitHub | ✅ 29/09 | `WAQI_TOKEN` y `DATABASE_URL` cargados con `gh secret set`, leídos de `.env` sin mostrarlos. |
 | 7. Flujo de GitHub Actions | ✅ 05/10 | El cron de GitHub solo corrió 3 veces en ~18 h (H26). cron-job.org quedó como único disparador (D27, D28) y se añadió la recuperación de emisiones atrasadas (D26). Confirmado con 117 ejecuciones seguidas y puntuales (H30). No aplica la desactivación a los 60 días (H23). |
 | 8. Checklist a las 24–48 h | ✅ 05/10 | Hecho con 4,8 días de datos (H30). La recolección continúa. |
+| 9. Datos históricos (REMMAQ y CAMS) | ✅ 05/10 | REMMAQ analizada hasta el 31/08 (sección 3) y 171 corridas pasadas de CAMS descargadas (D31, R10). Primera comparación en R11. |

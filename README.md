@@ -10,6 +10,7 @@ Cada hora guarda en una base PostgreSQL (Neon):
 | [Open-Meteo](https://open-meteo.com/) | Pronóstico meteorológico de 48 h por estación (modelo `best_match`) | `pronostico_clima` |
 | Open-Meteo Air Quality (CAMS global) | Pronóstico de PM2.5 de 48 h por estación, en µg/m³ | `pronostico_cams` |
 | — | Registro de cada ejecución: estado, filas nuevas, errores y avisos | `ejecuciones` |
+| Open-Meteo Single Runs (CAMS global) | Corridas **pasadas** de las 00 UTC (desde el 02/04/2026), descargadas una sola vez con `python -m recolector.archivo_cams` | `pronostico_cams_archivo` |
 
 Los pronósticos se guardan en 8 emisiones al día (00, 03, …, 21 hora de Ecuador). Si una emisión se retrasa, se recupera dentro de su bloque de 3 h.
 
