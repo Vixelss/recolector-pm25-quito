@@ -41,11 +41,13 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 | D27 | 30/09 | **Disparador principal externo: cron-job.org**, que cada hora en el minuto :07 (zona `America/Guayaquil`) hace `POST` a `https://api.github.com/repos/Vixelss/recolector-pm25-quito/actions/workflows/recolector.yml/dispatches` con `{"ref":"main"}`. Usa un token *fine-grained* de GitHub con acceso solo a este repositorio y solo al permiso *Actions: Read and write*, que vence el 31/01/2027 (aprox.). El token se guarda solo en cron-job.org. *(El respaldo con el cron de GitHub se quitó en D28.)* | H26: el cron de GitHub no es fiable. **Ojo:** renovar el token antes de que venza si la recolección se extiende. Prueba del autor a las 16:47: HTTP 204 y ejecución `workflow_dispatch` exitosa (36781642536). |
 | D28 | 30/09 | **Se quita el `schedule` de GitHub;** cron-job.org queda como único disparador automático. cron-job.org tiene activada la alerta por correo si una ejecución falla. | Decisión del autor. El respaldo cobraba al menos 1 min por ejecución (hasta ~720 min/mes más) y aportaba poco, porque la alerta ya cubre las fallas. Consumo esperado: ~720 min/mes. **Si llega la alerta:** lanzar a mano con `gh workflow run recolector.yml` y revisar el token (D27). |
 | D29 | 30/09 | Se borraron **todos** los registros de las 4 tablas a las 17:34 (`TRUNCATE ... RESTART IDENTITY`; los id de `ejecuciones` vuelven a empezar en 1). **La recolección oficial empieza con la ejecución de cron-job.org del 30/09 a las 18:07**, que debería guardar la emisión de las 18:00. | Decisión del autor: empezar con la base limpia, ya con el disparador y la recuperación funcionando (D26 a D28). Se perdieron los datos del 29/09 y del 30/09 (29 mediciones, la emisión de las 15:00 y 9 ejecuciones); estaban descritos en H24 a H28. |
+| D30 | 05/10 | **Datos medidos de la REMMAQ disponibles hasta el 31/08/2026** (registro horario desde 2004), en `../data/` (fuera del repositorio): un Excel por variable, con una hoja `LIMPIO` validada según `Marco_QAQC_REMMAQ.pdf`. Análisis en la sección 3. | Información del autor. Define la ventana de comparación con las corridas pasadas de CAMS: **02/04 al 31/08/2026**. **Ojo:** entre el 31/08 (fin de la REMMAQ) y el 30/09 (inicio del recolector) no hay datos medidos. Para comparar después del 30/09 se necesitará pedir más datos a la REMMAQ, o usar AQICN, que tiene la misma fuente pero en escala AQI. |
+| D31 | 05/10 | **Descarga única de las corridas pasadas de CAMS** (resuelve P3) a la nueva tabla `pronostico_cams_archivo` (`sql/esquema.sql`), con `python -m recolector.archivo_cams --desde 2026-04-02 --hasta 2026-10-05`. Una fila por estación, corrida (00 UTC) y hora objetivo; solo horas con valor. Se descargó hasta el 05/10, más allá del 31/08, para poder contrastar con lo recolectado (H31). | H31: el archivo de Open-Meteo podría ser una ventana móvil. Va en una tabla aparte porque, a diferencia de `pronostico_cams`, aquí sí se conoce la corrida del modelo. No cambia la ejecución horaria. |
 
 **Decisiones pendientes**
 - ~~P1. Modelo meteorológico de Open-Meteo~~ → resuelta en D15.
 - ~~P2. Emisiones duplicadas en la misma hora~~ → resuelta en D22.
-- **P3. ¿Descargar las corridas pasadas de CAMS (H31)?** Serían 170 corridas de las 00 UTC, del 02/04 al 29/09, con horizonte de 5 días. Permitirían comparar CAMS con la REMMAQ hacia atrás (unos 6 meses) sin esperar a la recolección. Si el archivo es una ventana móvil, cada día se pierde la corrida más antigua, así que conviene decidirlo pronto. Lo decide el autor.
+- ~~P3. ¿Descargar las corridas pasadas de CAMS?~~ → **sí** (D31). El autor tiene datos de la REMMAQ hasta el 31/08/2026 (D30).
 
 **Tareas pendientes** (actualizadas el 05/10/2026)
 - ~~T1. Confirmar que el cron se dispara solo~~ → **sí se dispara, pero muy pocas veces** (H26). Se abre T8.
@@ -140,7 +142,40 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 - **H32. El incidente de GitHub siguió (05/10) y se usó el respaldo local.** La ejecución de las 16:07 (37373887323) también falló sin runner, y githubstatus.com pasó a "Partial System Outage". A las 16:24 se ejecutó el recolector **en local** (`origen = local`, mismo código): estado `ok`, 7 mediciones (las de las 15:00), y la emisión de las 15:00 recuperada (384 + 384 filas) en 6,5 s. Por ser atrasada, empieza en las 16:00 (D26, limitación 2). **Se perdieron las mediciones de las 13:00 y 14:00** de las 7 estaciones activas, que correspondían a las ejecuciones fallidas (AQICN solo da la última). Ese día AQICN publicó la medición de las 15:00 antes de las 16:24 (~1,4 h), menos que el 2,1 h habitual (H30). Durante el resto de la sesión quedó un respaldo temporal en el PC del autor: a los :25 de cada hora revisa la ejecución de GitHub y, si falló, corre el recolector en local.
 ---
 
-## 3. Avance
+## 3. Datos medidos de la REMMAQ (análisis del 05/10/2026)
+
+Archivos en `D:/Catolica/Tesis/data/` (fuera del repositorio): CO, DIR, HUM, IUV, LLU, NO2, O3, PM10, PM2.5, PRE, RS, SO2, TMP, VEL (`.xlsx`, con copia `.rar`) y `Marco_QAQC_REMMAQ.pdf` (18/11/2025). Cada Excel tiene **una hoja, `LIMPIO`**, con una fila por hora y una columna por estación.
+
+- **R1. Cobertura:** de 2004 al **31/08/2026 23:00** (PM2.5 desde el 26/08/2004, RS desde 2007, PM10 desde 2013). IUV solo tiene la estación Jipijapa y llega al 31/07/2026.
+- **R2. Estaciones:** las 8 del recolector y además **San Antonio**, que no está en AQICN. Los nombres de columna cambian entre archivos (`EL CAMAL`, `ElCamal`; `SAN ANTONIO`, `SanAntonio`, `Santonio`; `GUAMANI`, `Guamaní`, `Guamani`), así que hay que normalizarlos al cargar.
+- **R3. Marcas de tiempo con segundos o milisegundos** (por ejemplo `23:00:32.925` o `12:59:59.995`) en ~6.500 filas por archivo. Todas están a menos de 5 min de la hora en punto, así que **se redondean a la hora**. La zona horaria no se indica; se asume hora local (UTC−5). Tampoco se indica si la hora marca el inicio o el fin del promedio. Hay que confirmarlo con la REMMAQ, porque afecta al alinear con CAMS.
+- **R4. PM2.5 (variable principal), 02/04–31/08/2026** (3.648 h). Sin duplicados ni horas sin fila.
+
+  | Estación | % horas con dato | Nota |
+  |---|---|---|
+  | Centro | 97,7 | |
+  | Cotocollao | 97,7 | |
+  | Tumbaco | 97,3 | |
+  | Carapungo | 96,7 | |
+  | Belisario | 95,7 | |
+  | Los Chillos | 88,2 | En AQICN **no** tiene PM2.5 (H3), pero en la REMMAQ sí. |
+  | El Camal | 48,6 | Sin datos desde el 15/06/2026 (coincide con H5). |
+  | Guamaní | 10,9 | Sin PM2.5 de julio de 2025 a julio de 2026; vuelve en agosto de 2026 (53 %). |
+  | San Antonio | 0 | Sin datos desde noviembre de 2025; los pocos valores de 2026 son 0. |
+
+  Mediana 2026 entre 7,6 (Tumbaco) y 13,2 µg/m³ (El Camal); máximo 96,4 µg/m³.
+- **R5. Ceros sospechosos en PM2.5:** hay rachas de horas seguidas con valor **exactamente 0** (hasta 22 h en Carapungo y Tumbaco, 12 h en Centro). Un PM2.5 horario de 0 µg/m³ no es físicamente plausible en Quito, así que probablemente son fallas del equipo que el filtro QA/QC no detectó. Son del 0,1 % al 2,2 % de los datos por estación en abril–agosto. **Propuesta:** tratar como faltantes los ceros que formen rachas (por ejemplo, 3 o más horas).
+- **R6. Otros problemas que pasaron el QA/QC:**
+  - **PM10:** solo tiene 3 estaciones (Carapungo, San Antonio y Tumbaco), una columna vacía (`Unnamed: 4`), está **desordenado** y tiene **113.804 horas duplicadas**, 11.567 de ellas con valores distintos. Este archivo no es confiable sin una limpieza previa.
+  - **SO2:** 29 valores negativos en Centro.
+  - **PRE:** una hora duplicada (24/08/2016) y un mínimo de 693 hPa en Los Chillos, cuya mediana es 760.
+- **R7. Unidades** (no vienen en los archivos; se deducen de los valores y del documento QA/QC): PM2.5, PM10, NO2, O3 y SO2 probablemente en µg/m³; CO en mg/m³ (mediana ~0,7); TMP en °C; HUM en %; VEL en **m/s**; DIR en grados; PRE en hPa (presión local, de 726 a 771); RS en W/m²; LLU en mm. Conviene confirmar las de los gases con la REMMAQ.
+- **R8. El documento QA/QC** describe los filtros aplicados: límites físicos, MAD (7×), percentiles p0,5 y p99,5, picos aislados (4×MAD), y que un valor solo se invalida si cumple 2 o más criterios. No menciona ceros, unidades ni la convención de la hora. Sirve como cita en la metodología.
+- **R9. Implicación para la tesis:** para comparar CAMS con la REMMAQ entre abril y agosto conviene usar **Belisario, Carapungo, Centro, Cotocollao y Tumbaco** (más del 95 %), y Los Chillos con cuidado. El Camal, Guamaní y San Antonio no sirven en ese periodo.
+
+---
+
+## 4. Avance
 
 | Paso | Estado | Notas |
 |---|---|---|

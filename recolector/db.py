@@ -54,6 +54,10 @@ def insertar_cams(con, filas: list[dict]) -> int:
     return _insertar(con, "pronostico_cams", filas)
 
 
+def insertar_cams_archivo(con, filas: list[dict]) -> int:
+    return _insertar(con, "pronostico_cams_archivo", filas)
+
+
 def registrar_ejecucion(con, iniciado_en: datetime, finalizado_en: datetime,
                         incluye_pronosticos: bool, estado: str, filas: dict,
                         errores: list[str], avisos: list[str], origen: str) -> None:

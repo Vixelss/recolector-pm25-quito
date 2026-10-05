@@ -115,3 +115,23 @@ CREATE TABLE IF NOT EXISTS ejecuciones (
     avisos                 JSONB,      -- situaciones no fatales (ej. El Camal con dato antiguo)
     origen                 TEXT        -- 'github-actions' o 'local'
 );
+
+
+-- ---------------------------------------------------------------------
+-- Corridas PASADAS de CAMS global, descargadas una vez del archivo de
+-- Open-Meteo (Single Runs API) con recolector/archivo_cams.py (H31, D30).
+-- Sirven para comparar CAMS con la REMMAQ antes del inicio de la
+-- recolección (30/09/2026). Solo existen las corridas de las 00 UTC desde
+-- el 02/04/2026, con huecos; horizonte de 5 días (121 h con valor).
+-- A diferencia de pronostico_cams, aquí SÍ se conoce la corrida del modelo.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS pronostico_cams_archivo (
+    estacion_id     INTEGER     NOT NULL,
+    corrida         TIMESTAMPTZ NOT NULL,  -- inicialización del modelo (00 UTC)
+    hora_objetivo   TIMESTAMPTZ NOT NULL,
+    pm2_5_ugm3      DOUBLE PRECISION NOT NULL,  -- las horas sin valor no se guardan
+    lat_cuadricula  DOUBLE PRECISION,
+    lon_cuadricula  DOUBLE PRECISION,
+    descargado_en   TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (estacion_id, corrida, hora_objetivo)
+);
