@@ -45,13 +45,14 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 **Decisiones pendientes**
 - ~~P1. Modelo meteorológico de Open-Meteo~~ → resuelta en D15.
 - ~~P2. Emisiones duplicadas en la misma hora~~ → resuelta en D22.
+- **P3. ¿Descargar las corridas pasadas de CAMS (H31)?** Serían 170 corridas de las 00 UTC, del 02/04 al 29/09, con horizonte de 5 días. Permitirían comparar CAMS con la REMMAQ hacia atrás (unos 6 meses) sin esperar a la recolección. Si el archivo es una ventana móvil, cada día se pierde la corrida más antigua, así que conviene decidirlo pronto. Lo decide el autor.
 
 **Tareas pendientes** (actualizadas el 05/10/2026)
 - ~~T1. Confirmar que el cron se dispara solo~~ → **sí se dispara, pero muy pocas veces** (H26). Se abre T8.
 - ~~T2. Verificar las horas objetivo con una emisión puntual~~ → **verificada el 05/10** en las 39 emisiones (H30).
 - ~~T3. Pedir un token nuevo de WAQI~~ → **descartada por el autor (30/09)**. Riesgo bajo: el token es gratuito, solo lee datos públicos, nunca se subió a GitHub y desde D14 se oculta en los mensajes. Si algún día falla (errores de AQICN en `ejecuciones`), se cambia en ese momento.
 - ~~T4. Checklist de 24–48 h (paso 8)~~ → **hecho el 05/10** con 4,8 días de datos (H30). Queda pendiente comparar a ojo una hora de medición con aqicn.org y ver el consumo de minutos en la configuración de GitHub (la API pide el permiso `user`: `gh auth refresh -h github.com -s user`).
-- **T5. Investigar si Open-Meteo guarda corridas anteriores de CAMS** (pendiente desde el contexto inicial; no bloquea). Si las guarda, permitiría reconstruir la comparación hacia atrás.
+- ~~T5. Investigar si Open-Meteo guarda corridas anteriores de CAMS~~ → **sí, en parte** (H31). Abre P3.
 - ~~T6. Actualizar `README.md`~~ → **hecho el 05/10**: qué guarda, cómo funciona, cómo ejecutarlo en local, secretos, y atribución de AQICN y Open-Meteo con la nota de no redistribuir los datos.
 - ~~T8. Resolver la baja frecuencia del cron (H26)~~ → D26 y D27. Confirmado: 117 ejecuciones seguidas, puntuales (H30).
 - **T9. Ubuntu 26 a partir del 19/10/2026.** GitHub avisa que `ubuntu-latest` pasará a Ubuntu 26 desde esa fecha. `setup-python` fija Python 3.13, así que no debería afectar, pero hay que revisar la primera ejecución después del 19/10 (o fijar `ubuntu-24.04` en el flujo).
@@ -131,6 +132,11 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
   - **T2 verificada:** en las 39 emisiones puntuales, cada estación tiene 48 horas objetivo, **de `hora_emision` a `hora_emision` + 47 h**, sin duplicados. Por eso en las emisiones puntuales no aplica la limitación 2 de D26.
   - **CAMS:** 0 nulos en 14 976 filas. Sigue dando solo 2 series distintas (norte y sur), lo que confirma H14.
   - **Tamaño en Neon:** 14 MB en total (`pronostico_clima` 3,1 MB; `mediciones_aqicn` 1,4 MB, por la respuesta cruda en JSONB). Crece unos 2,9 MB al día, así que llegaría a ~0,27 GB el 31/12: dentro del límite de 0,5 GB, pero bastante más que lo estimado en H19 (30 a 50 MB). Hay que vigilarlo si la recolección se alarga más allá de diciembre.
+- **H31. Corridas anteriores de CAMS en Open-Meteo (T5, 05/10).** Se probó la API de Open-Meteo con consultas reales.
+  - **Single Runs API** (`single-runs-api.open-meteo.com/v1/forecast?models=cams_global&hourly=pm2_5&run=AAAA-MM-DDT00:00`): devuelve la corrida completa de CAMS global con **5 días de horizonte** (121 horas con valor) para **las corridas de las 00 UTC desde el 02/04/2026**. Antes de esa fecha no hay corridas, y **las de las 12 UTC no están** en el archivo. En el último día solo están 170 de las 187 corridas; faltan 16 días: 28/04, 13/05, 18/05, 19/05, 26/05, 20/06, 21/06, 25/06, 28/06, 16/07, 06/08, 16/08, 19/09, 20/09, 03/10 y 04/10 (una fecha no respondió por la red local). No se sabe si el archivo es fijo o una ventana móvil de ~6 meses.
+  - **Coincide exactamente con lo que guardamos:** las emisiones del 01/10 a las 12:00 y del 02/10 a las 09:00 (Belisario) son idénticas a la corrida de las 00 UTC de ese día. La emisión del 03/10 a las 21:00 no coincide con ninguna corrida archivada; probablemente vino de la corrida de las 12 UTC, que no se archiva. Las emisiones de las 00:00 hora de Ecuador (05 UTC) tampoco coinciden con la corrida de las 00 UTC del día anterior. Todo indica que la API normal sirve la corrida más reciente (00 o 12 UTC) y que **el archivo solo conserva la de las 00 UTC, y con huecos**.
+  - **Implicación para la tesis:** el recolector sigue haciendo falta, porque guarda lo que la API ofrecía en cada momento, incluidas las corridas de las 12 UTC. Pero el archivo permite reconstruir hacia atrás la comparación de CAMS con la REMMAQ, con una corrida al día (P3).
+  - La API normal de calidad del aire también acepta `pm2_5_previous_day1` … `_day4`: el valor pronosticado 24, 48, … h antes. Sirve para medir el error por horizonte sin descargar las corridas completas.
 ---
 
 ## 3. Avance
