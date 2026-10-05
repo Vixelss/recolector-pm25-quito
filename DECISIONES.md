@@ -60,6 +60,7 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 - **T5. Investigar si Open-Meteo guarda corridas anteriores de CAMS** (pendiente desde el contexto inicial; no bloquea). Si las guarda, permitiría reconstruir la comparación hacia atrás.
 - **T6. Actualizar `README.md`** con qué hace el recolector, cómo ejecutarlo en local y dónde están la bitácora y el esquema. Incluir la atribución obligatoria de AQICN (H10) y la nota de no redistribuir los datos archivados.
 - ~~T8. Resolver la baja frecuencia del cron (H26)~~ → D26 y D27. Falta confirmar que cron-job.org dispara puntual durante varias horas seguidas.
+- **T9. Ubuntu 26 a partir del 19/10/2026.** GitHub avisa que `ubuntu-latest` pasará a Ubuntu 26 desde esa fecha. `setup-python` fija Python 3.13, así que no debería afectar, pero hay que revisar la primera ejecución después del 19/10 (o fijar `ubuntu-24.04` en el flujo).
 - **T7. (Opcional) Unificar los finales de línea** con un `.gitattributes`. Git avisa de la conversión LF/CRLF en Windows. No afecta al funcionamiento.
 
 ---
@@ -126,6 +127,7 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
   - La segunda (36781996730) vio la emisión ya guardada (`pronósticos=ya guardados`) y no consultó Open-Meteo: 0 filas nuevas.
   - Esto verifica T2 con una emisión atrasada. Falta verlo con una emisión puntual (debería empezar en `hora_emision`).
 - **H28. Primer disparo automático de cron-job.org (30/09, 17:07:01, ejecución 36783653802).** Llegó puntual al segundo, frente a los 16 a 29 min de retraso del cron de GitHub (H26). Terminó con éxito y sin pronósticos, porque la emisión de las 15:00 ya estaba guardada. Guardó 0 mediciones nuevas porque AQICN aún no había publicado horas nuevas (retraso de H1). A las 17:22 la ejecución programada de GitHub de esa hora todavía no aparecía (luego se quitó el `schedule`, D28).
+- **H29. Revisión del 05/10 (15:20) y primera falla.** Desde el inicio oficial (D29) hubo 127 ejecuciones disparadas por cron-job.org: **126 con éxito**, todas puntuales en el :07, de 15 a 26 s cada una. La única falla fue la de las 15:07 del 05/10 (37367731151): **no fue del código**. GitHub no consiguió un runner (*"The job was not acquired by Runner of type hosted even after multiple attempts"*) y la ejecución se canceló a los 15 min sin llegar a correr. Ese momento coincidía con un incidente de GitHub Actions publicado en githubstatus.com ("Partially Degraded Service"). Se relanzó a mano a las 15:23 (37369456429), que quedó en cola esperando un runner. Aunque no corra, la ejecución de las 16:07 cae en el mismo bloque de 3 h y recupera la emisión de las 15:00 (D26). **Limitación a declarar:** las caídas de GitHub Actions pueden dejar huecos de mediciones.
 ---
 
 ## 3. Avance
