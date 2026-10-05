@@ -46,20 +46,14 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 - ~~P1. Modelo meteorológico de Open-Meteo~~ → resuelta en D15.
 - ~~P2. Emisiones duplicadas en la misma hora~~ → resuelta en D22.
 
-**Tareas pendientes** (al cierre del 29/09/2026, 22:20)
+**Tareas pendientes** (actualizadas el 05/10/2026)
 - ~~T1. Confirmar que el cron se dispara solo~~ → **sí se dispara, pero muy pocas veces** (H26). Se abre T8.
-- **T2. Verificar las horas objetivo en la base con la primera emisión puntual** (18:00 del 30/09, la primera de la recolección oficial; la atrasada de las 15:00 ya se verificó en H27): 48 horas por estación, de hora_emision a hora_emision + 47 h, sin duplicados (ver H25).
+- ~~T2. Verificar las horas objetivo con una emisión puntual~~ → **verificada el 05/10** en las 39 emisiones (H30).
 - ~~T3. Pedir un token nuevo de WAQI~~ → **descartada por el autor (30/09)**. Riesgo bajo: el token es gratuito, solo lee datos públicos, nunca se subió a GitHub y desde D14 se oculta en los mensajes. Si algún día falla (errores de AQICN en `ejecuciones`), se cambia en ese momento.
-- **T4. Checklist de 24–48 h (paso 8), desde el 01/10 a las 18:30** (24 h después del inicio oficial, D29), según §11 de `CONTEXTO_RECOLECTOR.md`:
-  - ~24 mediciones por estación activa, sin duplicados.
-  - La hora de medición coincide con la de aqicn.org.
-  - 8 emisiones por día en `pronostico_clima` y en `pronostico_cams`, cada una con 384 filas.
-  - El Camal aparece solo como aviso.
-  - `ejecuciones` sin errores o con errores explicados.
-  - Además: consumo real de minutos de Actions y tamaño de la base en Neon.
+- ~~T4. Checklist de 24–48 h (paso 8)~~ → **hecho el 05/10** con 4,8 días de datos (H30). Queda pendiente comparar a ojo una hora de medición con aqicn.org y ver el consumo de minutos en la configuración de GitHub (la API pide el permiso `user`: `gh auth refresh -h github.com -s user`).
 - **T5. Investigar si Open-Meteo guarda corridas anteriores de CAMS** (pendiente desde el contexto inicial; no bloquea). Si las guarda, permitiría reconstruir la comparación hacia atrás.
 - **T6. Actualizar `README.md`** con qué hace el recolector, cómo ejecutarlo en local y dónde están la bitácora y el esquema. Incluir la atribución obligatoria de AQICN (H10) y la nota de no redistribuir los datos archivados.
-- ~~T8. Resolver la baja frecuencia del cron (H26)~~ → D26 y D27. Falta confirmar que cron-job.org dispara puntual durante varias horas seguidas.
+- ~~T8. Resolver la baja frecuencia del cron (H26)~~ → D26 y D27. Confirmado: 117 ejecuciones seguidas, puntuales (H30).
 - **T9. Ubuntu 26 a partir del 19/10/2026.** GitHub avisa que `ubuntu-latest` pasará a Ubuntu 26 desde esa fecha. `setup-python` fija Python 3.13, así que no debería afectar, pero hay que revisar la primera ejecución después del 19/10 (o fijar `ubuntu-24.04` en el flujo).
 - **T7. (Opcional) Unificar los finales de línea** con un `.gitattributes`. Git avisa de la conversión LF/CRLF en Windows. No afecta al funcionamiento.
 
@@ -127,7 +121,16 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
   - La segunda (36781996730) vio la emisión ya guardada (`pronósticos=ya guardados`) y no consultó Open-Meteo: 0 filas nuevas.
   - Esto verifica T2 con una emisión atrasada. Falta verlo con una emisión puntual (debería empezar en `hora_emision`).
 - **H28. Primer disparo automático de cron-job.org (30/09, 17:07:01, ejecución 36783653802).** Llegó puntual al segundo, frente a los 16 a 29 min de retraso del cron de GitHub (H26). Terminó con éxito y sin pronósticos, porque la emisión de las 15:00 ya estaba guardada. Guardó 0 mediciones nuevas porque AQICN aún no había publicado horas nuevas (retraso de H1). A las 17:22 la ejecución programada de GitHub de esa hora todavía no aparecía (luego se quitó el `schedule`, D28).
-- **H29. Revisión del 05/10 (15:20) y primera falla.** Desde el inicio oficial (D29) hubo 127 ejecuciones disparadas por cron-job.org: **126 con éxito**, todas puntuales en el :07, de 15 a 26 s cada una. La única falla fue la de las 15:07 del 05/10 (37367731151): **no fue del código**. GitHub no consiguió un runner (*"The job was not acquired by Runner of type hosted even after multiple attempts"*) y la ejecución se canceló a los 15 min sin llegar a correr. Ese momento coincidía con un incidente de GitHub Actions publicado en githubstatus.com ("Partially Degraded Service"). Se relanzó a mano a las 15:23 (37369456429), pero **también falló** a los 15 min por la misma razón: el incidente seguía activo. No se insistió más: la ejecución de las 16:07 cae en el mismo bloque de 3 h y recupera la emisión de las 15:00 (D26). **Limitación a declarar:** las caídas de GitHub Actions pueden dejar huecos de mediciones.
+- **H29. Revisión del 05/10 (15:20) y primera falla.** Desde el inicio oficial (D29) hasta las 14:07 del 05/10 hubo **117 ejecuciones, todas con éxito y sin huecos** (ver H30). La única falla fue la de las 15:07 del 05/10 (37367731151): **no fue del código**. GitHub no consiguió un runner (*"The job was not acquired by Runner of type hosted even after multiple attempts"*) y la ejecución se canceló a los 15 min sin llegar a correr. Ese momento coincidía con un incidente de GitHub Actions publicado en githubstatus.com ("Partially Degraded Service"). Se relanzó a mano a las 15:23 (37369456429), pero **también falló** a los 15 min por la misma razón: el incidente seguía activo. No se insistió más: la ejecución de las 16:07 cae en el mismo bloque de 3 h y recupera la emisión de las 15:00 (D26). **Limitación a declarar:** las caídas de GitHub Actions pueden dejar huecos de mediciones.
+- **H30. Checklist de la recolección oficial (T4 y T2), revisado el 05/10 a las 15:45** con los datos del 30/09 18:07 al 05/10 14:07 (117 horas):
+  - **Ejecuciones:** 117 de 117 esperadas, todas `ok`, todas entre :07:10 y :07:50. Ningún hueco entre ejecuciones mayor de 75 min. Ninguna con errores. El recolector tarda 2,6 s de media y 7,9 s como máximo. Cada ejecución completa en GitHub tarda de 15 a 26 s, así que se cobra 1 min por ejecución: **~24 min/día, ~720 min/mes** (dentro del cupo de 2000, D2). Las ejecuciones que GitHub no llegó a asignar a un runner (H29) no corren y, en principio, no se cobran.
+  - **Avisos:** el único aviso es el de El Camal (dato del 15/06), en las 117 ejecuciones. Su medición aparece una sola vez en la base. Correcto (D20).
+  - **Mediciones:** 805 de 819 posibles (7 estaciones activas × 117 h), es decir **98,3 %**, sin duplicados. Los días completos tienen de 22 a 24 por estación. Faltan 14 horas sueltas, por ejemplo el 04/10 a las 00:00 en 4 estaciones a la vez. Como ninguna ejecución falló, esos huecos vienen de AQICN o de la REMMAQ, no del recolector: AQICN solo da la última medición y, si en una hora no publica, esa hora se pierde. Hay que tratarlos como faltantes en el análisis.
+  - **Retraso de AQICN:** en todas las mediciones guardadas, `consultado_en − medido_en` fue de **2,1 h** (la medición de las H se obtiene en la ejecución de las H+2:07). Es más estable que lo visto en H1 (2 a 4 h).
+  - **Pronósticos (clima y CAMS):** 39 emisiones en cada tabla, **8 por día completo**, todas con 384 filas (48 h × 8 estaciones). Todas se guardaron a tiempo, unos 7 min después de `hora_emision`, y no hizo falta recuperar ninguna. Ninguna `hora_emision` cae fuera de 00, 03, …, 21 y todas las `hora_objetivo` están en punto.
+  - **T2 verificada:** en las 39 emisiones puntuales, cada estación tiene 48 horas objetivo, **de `hora_emision` a `hora_emision` + 47 h**, sin duplicados. Por eso en las emisiones puntuales no aplica la limitación 2 de D26.
+  - **CAMS:** 0 nulos en 14 976 filas. Sigue dando solo 2 series distintas (norte y sur), lo que confirma H14.
+  - **Tamaño en Neon:** 14 MB en total (`pronostico_clima` 3,1 MB; `mediciones_aqicn` 1,4 MB, por la respuesta cruda en JSONB). Crece unos 2,9 MB al día, así que llegaría a ~0,27 GB el 31/12: dentro del límite de 0,5 GB, pero bastante más que lo estimado en H19 (30 a 50 MB). Hay que vigilarlo si la recolección se alarga más allá de diciembre.
 ---
 
 ## 3. Avance
@@ -140,5 +143,5 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 | 4. Script del recolector y prueba local | ✅ 29/09 | Pruebas a las 20:58 y 21:00 (H21) y prueba de emisión duplicada (D22). Datos de prueba borrados. |
 | 5. Revisar los datos en Neon | ✅ 29/09 | Revisados en las pruebas locales y de GitHub (H18, H21, H25). La revisión con datos reales es parte del paso 8. |
 | 6. Secretos en GitHub | ✅ 29/09 | `WAQI_TOKEN` y `DATABASE_URL` cargados con `gh secret set`, leídos de `.env` sin mostrarlos. |
-| 7. Flujo de GitHub Actions | ⏳ 30/09 | El cron de GitHub solo corrió 3 veces en ~18 h (H26). cron-job.org quedó como único disparador (D27, D28) y la recuperación de emisiones atrasadas (D26). Falta confirmar varias horas seguidas puntuales. No aplica la desactivación a los 60 días (H23). |
-| 8. Checklist a las 24–48 h | — | Programado para el 30/09 o el 01/10 (T4). |
+| 7. Flujo de GitHub Actions | ✅ 05/10 | El cron de GitHub solo corrió 3 veces en ~18 h (H26). cron-job.org quedó como único disparador (D27, D28) y se añadió la recuperación de emisiones atrasadas (D26). Confirmado con 117 ejecuciones seguidas y puntuales (H30). No aplica la desactivación a los 60 días (H23). |
+| 8. Checklist a las 24–48 h | ✅ 05/10 | Hecho con 4,8 días de datos (H30). La recolección continúa. |
