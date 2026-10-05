@@ -52,10 +52,10 @@ Sirve como respaldo para redactar la metodología de la tesis y para la defensa.
 - ~~T3. Pedir un token nuevo de WAQI~~ → **descartada por el autor (30/09)**. Riesgo bajo: el token es gratuito, solo lee datos públicos, nunca se subió a GitHub y desde D14 se oculta en los mensajes. Si algún día falla (errores de AQICN en `ejecuciones`), se cambia en ese momento.
 - ~~T4. Checklist de 24–48 h (paso 8)~~ → **hecho el 05/10** con 4,8 días de datos (H30). Queda pendiente comparar a ojo una hora de medición con aqicn.org y ver el consumo de minutos en la configuración de GitHub (la API pide el permiso `user`: `gh auth refresh -h github.com -s user`).
 - **T5. Investigar si Open-Meteo guarda corridas anteriores de CAMS** (pendiente desde el contexto inicial; no bloquea). Si las guarda, permitiría reconstruir la comparación hacia atrás.
-- **T6. Actualizar `README.md`** con qué hace el recolector, cómo ejecutarlo en local y dónde están la bitácora y el esquema. Incluir la atribución obligatoria de AQICN (H10) y la nota de no redistribuir los datos archivados.
+- ~~T6. Actualizar `README.md`~~ → **hecho el 05/10**: qué guarda, cómo funciona, cómo ejecutarlo en local, secretos, y atribución de AQICN y Open-Meteo con la nota de no redistribuir los datos.
 - ~~T8. Resolver la baja frecuencia del cron (H26)~~ → D26 y D27. Confirmado: 117 ejecuciones seguidas, puntuales (H30).
 - **T9. Ubuntu 26 a partir del 19/10/2026.** GitHub avisa que `ubuntu-latest` pasará a Ubuntu 26 desde esa fecha. `setup-python` fija Python 3.13, así que no debería afectar, pero hay que revisar la primera ejecución después del 19/10 (o fijar `ubuntu-24.04` en el flujo).
-- **T7. (Opcional) Unificar los finales de línea** con un `.gitattributes`. Git avisa de la conversión LF/CRLF en Windows. No afecta al funcionamiento.
+- ~~T7. Unificar los finales de línea~~ → **hecho el 05/10**: `.gitattributes` con `* text=auto eol=lf`.
 
 ---
 

@@ -1,0 +1,3 @@
+# Finales de línea uniformes (LF) en el repositorio y en la copia de trabajo,
+# también en Windows. Evita los avisos de conversión LF/CRLF (T7).
+* text=auto eol=lf
