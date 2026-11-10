@@ -35,3 +35,9 @@ export function ahoraEcuador() {
 export function horasEntre(a: string, b: string) {
   return (Date.parse(`${b}:00Z`) - Date.parse(`${a}:00Z`)) / 3600e3
 }
+
+// Marcas del eje vertical en valores redondos (cada 5 o 10 µg/m³)
+export function marcasY(tope: number) {
+  const paso = tope > 60 ? 20 : tope > 30 ? 10 : 5
+  return Array.from({ length: Math.floor(tope / paso) + 1 }, (_, i) => i * paso)
+}

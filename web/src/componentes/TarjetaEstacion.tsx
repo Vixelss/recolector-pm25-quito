@@ -5,7 +5,7 @@ import { cn } from '@/ui/cn'
 import { AvisoLimite, InsigniaCategoria } from '@/ui/Insignia'
 
 // Estado actual de una estación: pronóstico de la hora en curso y último dato medido (RF7, RF8)
-export function TarjetaEstacion({ e, activa, onElegir }: { e: Estacion; activa: boolean; onElegir: () => void }) {
+export function TarjetaEstacion({ e, activa, onElegir, horaActual }: { e: Estacion; activa: boolean; onElegir: () => void; horaActual: string }) {
   const sin = e.estado === 'sin_datos' || !e.ahora
   return (
     <button
@@ -23,7 +23,7 @@ export function TarjetaEstacion({ e, activa, onElegir }: { e: Estacion; activa: 
       )}
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="titulo text-[1.45rem] leading-none">{e.nombre}</h3>
-        <span className="rotulo">{sin ? 'sin datos' : `ahora · ${hora(e.ahora!.hora)}`}</span>
+        <span className="rotulo">{sin ? 'sin datos' : `${e.ahora!.hora === horaActual ? 'ahora' : 'pronóstico'} · ${hora(e.ahora!.hora)}`}</span>
       </div>
       {sin ? (
         <p className="mt-4 text-sm leading-relaxed text-tinta-2">

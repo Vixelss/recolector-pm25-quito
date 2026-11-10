@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Area, CartesianGrid, ComposedChart, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { dia, hora, num } from '@/lib/formato'
+import { dia, hora, marcasY, num } from '@/lib/formato'
 import { POR_CLAVE } from '@/lib/iqca'
 import type { Estacion } from '@/lib/tipos'
 import { AvisoLimite, InsigniaCategoria, Muestra } from '@/ui/Insignia'
@@ -40,7 +40,7 @@ export function GraficoPronostico({ e, umbral }: { e: Estacion; umbral: number }
               <CartesianGrid vertical={false} stroke="var(--color-regla-suave)" />
               <XAxis dataKey="etiqueta" interval={2} tickLine={false} axisLine={{ stroke: 'var(--color-regla)' }}
                 tick={{ fontSize: 11, fill: 'var(--color-tinta-3)', fontFamily: 'var(--font-mono)' }} />
-              <YAxis domain={[0, tope]} tickLine={false} axisLine={false} width={48}
+              <YAxis domain={[0, tope]} ticks={marcasY(tope)} tickLine={false} axisLine={false} width={48}
                 tick={{ fontSize: 11, fill: 'var(--color-tinta-3)', fontFamily: 'var(--font-mono)' }} />
               <Area dataKey="banda" stroke="none" fill={AZUL} fillOpacity={0.16} isAnimationActive={false} activeDot={false} />
               <ReferenceLine y={25} stroke="var(--color-tinta)" strokeDasharray="5 4" strokeWidth={1.2}

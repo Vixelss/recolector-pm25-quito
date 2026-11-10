@@ -48,6 +48,8 @@ def construir(serie: pd.DataFrame, pron: pd.DataFrame, cams: pd.DataFrame, ahora
         pe = pron[pron.estacion == e]
         ult = pe[pe.hora_emision == ultima].sort_values("horizonte")
         actual = pe[pe.hora_objetivo == ahora].sort_values("horizonte").head(1)
+        if actual.empty:      # falta la emisión anterior: se usa la primera hora de la última emisión
+            actual = ult.head(1)
         incompleto = bool(ult.datos_incompletos.any()) if len(ult) else False
         estado = "sin_datos" if sin_datos or ult.empty else ("incompleto" if incompleto else "ok")
         horas = pd.date_range(ahora - pd.Timedelta(days=DIAS_GRAFICO), ahora, freq="h")
@@ -60,7 +62,7 @@ def construir(serie: pd.DataFrame, pron: pd.DataFrame, cams: pd.DataFrame, ahora
             "ultimo_medido": None if ultimo is None else {"hora": _iso(ultimo), "pm25": _num(s[ultimo])},
             # RF8: sin datos recientes → no se publica el pronóstico
             "ahora": None if sin_datos or actual.empty else {
-                "hora": _iso(ahora), "pm25": _num(actual.pm25_ugm3.iloc[0]), "categoria": actual.categoria.iloc[0],
+                "hora": _iso(actual.hora_objetivo.iloc[0]), "pm25": _num(actual.pm25_ugm3.iloc[0]), "categoria": actual.categoria.iloc[0],
                 "cerca_del_limite": bool(actual.cerca_del_limite.iloc[0]), "horizonte": int(actual.horizonte.iloc[0])},
             "pronostico": [] if sin_datos else [
                 {"h": int(r.horizonte), "hora": _iso(r.hora_objetivo), "pm25": _num(r.pm25_ugm3),

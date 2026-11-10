@@ -34,7 +34,7 @@ export default function App() {
         <Mapa estaciones={datos.estaciones} elegida={clave} onElegir={setElegida} />
         <div className="grid content-start gap-3">
           {datos.estaciones.map((e) => (
-            <TarjetaEstacion key={e.clave} e={e} activa={e.clave === clave} onElegir={() => setElegida(e.clave)} />
+            <TarjetaEstacion key={e.clave} e={e} activa={e.clave === clave} onElegir={() => setElegida(e.clave)} horaActual={datos.ahora} />
           ))}
         </div>
       </div>

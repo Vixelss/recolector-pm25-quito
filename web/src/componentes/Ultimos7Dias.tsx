@@ -1,5 +1,5 @@
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { dia, hora, num } from '@/lib/formato'
+import { dia, hora, marcasY, num } from '@/lib/formato'
 import type { Estacion } from '@/lib/tipos'
 
 const SERIES = [
@@ -29,7 +29,7 @@ export function Ultimos7Dias({ e, desde }: { e: Estacion; desde: string | null }
             <CartesianGrid vertical={false} stroke="var(--color-regla-suave)" />
             <XAxis dataKey="hora" ticks={marcas} tickFormatter={(t: string) => dia(t)} tickLine={false}
               axisLine={{ stroke: 'var(--color-regla)' }} tick={{ fontSize: 11, fill: 'var(--color-tinta-3)' }} />
-            <YAxis domain={[0, tope]} tickLine={false} axisLine={false} width={48}
+            <YAxis domain={[0, tope]} ticks={marcasY(tope)} tickLine={false} axisLine={false} width={48}
               tick={{ fontSize: 11, fill: 'var(--color-tinta-3)', fontFamily: 'var(--font-mono)' }} />
             <ReferenceLine y={25} stroke="var(--color-tinta-3)" strokeDasharray="5 4" />
             {SERIES.map((s) => (
