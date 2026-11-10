@@ -73,3 +73,62 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: python -m pronostico.main
+
+  # Página web (GitHub Pages): datos.json con el último pronóstico, los últimos
+  # 7 días y el desempeño, y compilación de la página (web/). Va en un trabajo
+  # aparte: si falla, la recolección y el pronóstico de esta hora ya quedaron
+  # guardados. datos.json no se guarda en git (términos de AQICN, W8).
+  publicar:
+    needs: recolectar
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write      # publicar en GitHub Pages
+      id-token: write   # exigido por actions/deploy-pages
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v7
+
+      - name: Instalar Python 3.13 (con caché de pip)
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Instalar dependencias de Python
+        run: pip install -r requirements.txt
+
+      - name: Generar datos.json
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python -m pronostico.exportar
+
+      - name: Instalar Node 22 (con caché de npm)
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Compilar la página
+        working-directory: web
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"   # el navegador de pruebas solo se usa en local
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+
+      - name: Subir la página
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: web/dist
+
+      - name: Publicar en GitHub Pages
+        id: despliegue
+        uses: actions/deploy-pages@v5
