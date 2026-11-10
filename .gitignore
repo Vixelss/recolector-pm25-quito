@@ -220,3 +220,8 @@ __marimo__/
 # Notas de trabajo locales (no se publican)
 DECISIONES.md
 CONTEXTO_RECOLECTOR.md
+
+# Web: dependencias, compilación y datos generados en cada ejecución (no se versionan)
+web/node_modules/
+web/dist/
+web/public/datos.json

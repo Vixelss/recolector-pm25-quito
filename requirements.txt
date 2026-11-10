@@ -2,3 +2,8 @@
 requests==2.34.2          # llamadas HTTP a AQICN y Open-Meteo
 psycopg[binary]==3.3.6    # cliente de PostgreSQL (Neon); "binary" evita compilar
 python-dotenv==1.2.3      # lee el archivo .env solo en ejecución local
+# Servicio de pronóstico (mismas versiones con que se entrenaron los modelos, ver pronostico/modelo/metadatos.json)
+numpy==2.3.5
+pandas==3.0.3
+xgboost==3.2.0
+holidays==0.106           # feriados de Ecuador (variable feriado_t)

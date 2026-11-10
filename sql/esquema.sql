@@ -135,3 +135,29 @@ CREATE TABLE IF NOT EXISTS pronostico_cams_archivo (
     descargado_en   TIMESTAMPTZ NOT NULL,
     PRIMARY KEY (estacion_id, corrida, hora_objetivo)
 );
+
+
+-- ---------------------------------------------------------------------
+-- Pronósticos del modelo propio (servicio pronostico/, desde el 10/11/2026).
+-- XGBoost versión A, un modelo por horizonte (1 a 24 h). Una fila por
+-- estación, emisión y horizonte; cada hora se guardan 72 filas
+-- (3 estaciones × 24 h). hora_emision es la hora en punto en que corre el
+-- flujo (E); las variables usan lo publicado hasta E−2.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS pronostico_modelo (
+    estacion_id         INTEGER          NOT NULL,  -- ID de AQICN (6941, 6943, 10686)
+    hora_emision        TIMESTAMPTZ      NOT NULL,  -- E
+    horizonte           SMALLINT         NOT NULL CHECK (horizonte BETWEEN 1 AND 24),
+    hora_objetivo       TIMESTAMPTZ      NOT NULL,  -- E + horizonte
+    pm25_ugm3           DOUBLE PRECISION NOT NULL,
+    banda_inferior      DOUBLE PRECISION,           -- pronóstico + percentil 10 del error (mínimo 0)
+    banda_superior      DOUBLE PRECISION,           -- pronóstico + percentil 90 del error
+    categoria           TEXT             NOT NULL,  -- categoría del IQCA del valor pronosticado
+    cerca_del_limite    BOOLEAN          NOT NULL,  -- 20 < pronóstico ≤ 25 µg/m³ (aviso de episodio)
+    datos_incompletos   BOOLEAN          NOT NULL,  -- RF8: faltaba el dato de E−2 de la estación
+    variables_faltantes SMALLINT         NOT NULL DEFAULT 0,  -- de las 26 variables
+    ultimo_dato         TIMESTAMPTZ,                -- última medición de la estación usada
+    version_modelo      TEXT             NOT NULL,  -- fecha de modelo/metadatos.json
+    creado_en           TIMESTAMPTZ      NOT NULL DEFAULT now(),
+    PRIMARY KEY (estacion_id, hora_emision, horizonte)
+);
