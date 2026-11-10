@@ -1,0 +1,74 @@
+@import "tailwindcss";
+@import "@fontsource-variable/fraunces";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "leaflet/dist/leaflet.css";
+
+/* Boletín técnico: papel cálido, tinta oscura, una sola nota de color (los del IQCA). */
+@theme {
+  --font-display: "Fraunces Variable", Georgia, serif;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-papel: #f6f3ec;
+  --color-hoja: #fbfaf6;
+  --color-tinta: #14181f;
+  --color-tinta-2: #4a4f58;
+  --color-tinta-3: #7a7d84;
+  --color-regla: #ddd8cc;
+  --color-regla-suave: #ebe7dd;
+  --color-aviso: #b4561a;
+  --color-aviso-fondo: #fbeee2;
+
+  /* Series de los gráficos (paleta validada para daltonismo) */
+  --color-serie-1: #2a78d6;
+  --color-serie-2: #eb6834;
+  --color-serie-3: #1baf7a;
+}
+
+html { background: var(--color-papel); }
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 500px at 85% -10%, #ece6d8 0%, transparent 60%),
+    var(--color-papel);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Grano de papel muy sutil */
+body::before {
+  content: "";
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+#root { position: relative; z-index: 1; }
+
+.cifra { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.titulo { font-family: var(--font-display); font-optical-sizing: auto; letter-spacing: -0.02em; }
+.rotulo { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-tinta-3); font-weight: 500; }
+
+/* Aparición escalonada al cargar */
+@keyframes subir { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.aparece { animation: subir .45s cubic-bezier(.2,.7,.2,1) both; }
+@media (prefers-reduced-motion: reduce) { .aparece { animation: none; } }
+
+/* Mapa en gris para que solo resalten los colores del IQCA */
+.mapa-sobrio .leaflet-tile-pane { filter: grayscale(1) contrast(.92) brightness(1.04) sepia(.08); }
+.leaflet-container { font-family: var(--font-sans); background: var(--color-regla-suave); }
+.leaflet-tooltip.etiqueta-estacion {
+  background: var(--color-tinta); color: var(--color-hoja); border: 0; border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(20, 24, 31, .18); padding: 6px 9px; font-size: 12px;
+}
+.leaflet-tooltip.etiqueta-estacion::before { display: none; }
+.leaflet-control-attribution { font-size: 10px; background: rgba(251, 250, 246, .85) !important; }
+
+/* Recharts: sin contorno de foco en el lienzo; el foco va en los controles */
+.recharts-wrapper:focus, .recharts-surface:focus { outline: none; }
+
+:focus-visible { outline: 2px solid var(--color-serie-1); outline-offset: 2px; border-radius: 4px; }

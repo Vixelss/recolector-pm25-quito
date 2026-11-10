@@ -225,3 +225,6 @@ CONTEXTO_RECOLECTOR.md
 web/node_modules/
 web/dist/
 web/public/datos.json
+
+# Capturas de las pruebas de la página
+web/pruebas/capturas/
