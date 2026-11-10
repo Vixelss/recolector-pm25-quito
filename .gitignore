@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Notas de trabajo locales (no se publican)
+DECISIONES.md
+CONTEXTO_RECOLECTOR.md
