@@ -11,9 +11,7 @@
     "revisar": "node pruebas/revisar.mjs"
   },
   "dependencies": {
-    "@fontsource-variable/fraunces": "^5.3.0",
-    "@fontsource/ibm-plex-mono": "^5.3.0",
-    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource-variable/public-sans": "^5.3.0",
     "@tailwindcss/vite": "^4.3.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

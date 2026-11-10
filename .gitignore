@@ -231,3 +231,6 @@ web/pruebas/capturas/
 
 # La regla "lib/" de arriba es de Python; la carpeta de la web sí se versiona
 !web/src/lib/
+
+# Ficha de diseño (notas locales)
+web/PRODUCT.md

@@ -53,6 +53,14 @@ for (const [nombre, vista] of [['computadora', { width: 1440, height: 900 }], ['
   await pagina.screenshot({ path: `${carpeta}/${nombre}_completa.png`, fullPage: true })
   await pagina.screenshot({ path: `${carpeta}/${nombre}_inicio.png` })
 
+  // Clic en un punto del mapa: elige la estación y la etiqueta no queda fija al retirar el cursor
+  if (!vista.isMobile) {
+    await pagina.locator('path.leaflet-interactive').nth(2).click()
+    await pagina.mouse.move(5, 5)
+    await pagina.waitForTimeout(300)
+    ok(await pagina.locator('.leaflet-tooltip').count() === 0, 'sin etiqueta fija en el mapa tras el clic')
+  }
+
   // Elegir otra estación
   await tarjetas.nth(1).click()
   const nombre2 = (await tarjetas.nth(1).locator('h3').textContent())?.trim()

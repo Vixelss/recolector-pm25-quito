@@ -1,27 +1,23 @@
 @import "tailwindcss";
-@import "@fontsource-variable/fraunces";
-@import "@fontsource/ibm-plex-sans/400.css";
-@import "@fontsource/ibm-plex-sans/500.css";
-@import "@fontsource/ibm-plex-sans/600.css";
-@import "@fontsource/ibm-plex-mono/400.css";
-@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource-variable/public-sans";
 @import "leaflet/dist/leaflet.css";
 
-/* Boletín técnico: papel cálido, tinta oscura, una sola nota de color (los del IQCA). */
+/* Servicio público de datos: gris neutro frío, superficies blancas, tinta casi negra.
+   El color se reserva para las categorías del IQCA y las series de los gráficos. */
 @theme {
-  --font-display: "Fraunces Variable", Georgia, serif;
-  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: "Public Sans Variable", "Segoe UI", system-ui, sans-serif;
 
-  --color-papel: #f6f3ec;
-  --color-hoja: #fbfaf6;
-  --color-tinta: #14181f;
-  --color-tinta-2: #4a4f58;
-  --color-tinta-3: #7a7d84;
-  --color-regla: #ddd8cc;
-  --color-regla-suave: #ebe7dd;
-  --color-aviso: #b4561a;
-  --color-aviso-fondo: #fbeee2;
+  --color-fondo: #f3f4f6;
+  --color-superficie: #ffffff;
+  --color-hundido: #f7f8f9;
+  --color-tinta: #161b22;
+  --color-tinta-2: #3f4751;
+  --color-tinta-3: #5b6470;
+  --color-regla: #d3d8de;
+  --color-regla-suave: #e6e9ed;
+  --color-elegida: #edf2f8;
+  --color-aviso: #9c4a0c;
+  --color-aviso-fondo: #fdf0e4;
 
   /* Series de los gráficos (paleta validada para daltonismo) */
   --color-serie-1: #2a78d6;
@@ -29,46 +25,44 @@
   --color-serie-3: #1baf7a;
 }
 
-html { background: var(--color-papel); }
+html { background: var(--color-fondo); }
 body {
   margin: 0;
-  background:
-    radial-gradient(1200px 500px at 85% -10%, #ece6d8 0%, transparent 60%),
-    var(--color-papel);
+  background: var(--color-fondo);
   color: var(--color-tinta);
   font-family: var(--font-sans);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
 
-/* Grano de papel muy sutil */
-body::before {
-  content: "";
-  position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .35;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+/* Cifras alineadas en tablas, tarjetas y ejes */
+.cifra, .recharts-cartesian-axis-tick text { font-variant-numeric: tabular-nums; }
+
+/* Caja de contenido: superficie blanca con borde fino, sin sombra */
+@layer components {
+  .caja { background: var(--color-superficie); border: 1px solid var(--color-regla); border-radius: 6px; }
 }
-#root { position: relative; z-index: 1; }
-
-.cifra { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-.titulo { font-family: var(--font-display); font-optical-sizing: auto; letter-spacing: -0.02em; }
-.rotulo { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-tinta-3); font-weight: 500; }
-
-/* Aparición escalonada al cargar */
-@keyframes subir { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-.aparece { animation: subir .45s cubic-bezier(.2,.7,.2,1) both; }
-@media (prefers-reduced-motion: reduce) { .aparece { animation: none; } }
 
 /* Mapa en gris para que solo resalten los colores del IQCA */
-.mapa-sobrio .leaflet-tile-pane { filter: grayscale(1) contrast(.92) brightness(1.04) sepia(.08); }
+.mapa-sobrio .leaflet-tile-pane { filter: grayscale(1) contrast(.9) brightness(1.05); }
 .leaflet-container { font-family: var(--font-sans); background: var(--color-regla-suave); }
 .leaflet-tooltip.etiqueta-estacion {
-  background: var(--color-tinta); color: var(--color-hoja); border: 0; border-radius: 6px;
-  box-shadow: 0 6px 18px rgba(20, 24, 31, .18); padding: 6px 9px; font-size: 12px;
+  background: var(--color-superficie); color: var(--color-tinta); border: 1px solid var(--color-regla);
+  border-radius: 4px; box-shadow: 0 2px 6px rgba(22, 27, 34, .12); padding: 6px 9px; font-size: 12.5px; line-height: 1.4;
 }
 .leaflet-tooltip.etiqueta-estacion::before { display: none; }
-.leaflet-control-attribution { font-size: 10px; background: rgba(251, 250, 246, .85) !important; }
+.leaflet-control-attribution { font-size: 10px; background: rgba(255, 255, 255, .88) !important; }
+.leaflet-control-zoom a { color: var(--color-tinta) !important; }
+.leaflet-bar { border: 1px solid var(--color-regla) !important; box-shadow: none !important; border-radius: 4px !important; }
 
 /* Recharts: sin contorno de foco en el lienzo; el foco va en los controles */
 .recharts-wrapper:focus, .recharts-surface:focus { outline: none; }
 
-:focus-visible { outline: 2px solid var(--color-serie-1); outline-offset: 2px; border-radius: 4px; }
+:focus-visible { outline: 2px solid var(--color-serie-1); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; }
+}

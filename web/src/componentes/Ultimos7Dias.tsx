@@ -1,6 +1,7 @@
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { dia, hora, marcasY, num } from '@/lib/formato'
 import type { Estacion } from '@/lib/tipos'
+import { EJE, Leyenda, MARGEN, RETICULA, TIP } from './comunes'
 
 const SERIES = [
   { clave: 'medido', nombre: 'Medido (AQICN convertido)', color: 'var(--color-tinta)', ancho: 1.6 },
@@ -18,49 +19,46 @@ export function Ultimos7Dias({ e, desde }: { e: Estacion; desde: string | null }
 
   return (
     <div>
-      <ul className="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-[0.8rem] text-tinta-2" aria-label="Leyenda">
-        {SERIES.map((s) => (
-          <li key={s.clave} className="inline-flex items-center gap-2"><span className="h-0.5 w-5 rounded" style={{ background: s.color }} />{s.nombre}</li>
-        ))}
-      </ul>
-      <div className="h-[280px] w-full" role="img" aria-label={`PM2.5 medido y pronosticado en ${e.nombre} durante los últimos 7 días`}>
-        <ResponsiveContainer>
-          <LineChart data={datos} margin={{ top: 8, right: 12, bottom: 4, left: -14 }}>
-            <CartesianGrid vertical={false} stroke="var(--color-regla-suave)" />
-            <XAxis dataKey="hora" ticks={marcas} tickFormatter={(t: string) => dia(t)} tickLine={false}
-              axisLine={{ stroke: 'var(--color-regla)' }} tick={{ fontSize: 11, fill: 'var(--color-tinta-3)' }} />
-            <YAxis domain={[0, tope]} ticks={marcasY(tope)} tickLine={false} axisLine={false} width={48}
-              tick={{ fontSize: 11, fill: 'var(--color-tinta-3)', fontFamily: 'var(--font-mono)' }} />
-            <ReferenceLine y={25} stroke="var(--color-tinta-3)" strokeDasharray="5 4" />
-            {SERIES.map((s) => (
-              <Line key={s.clave} dataKey={s.clave} name={s.nombre} stroke={s.color} strokeWidth={s.ancho} dot={false}
-                connectNulls={false} isAnimationActive={false} activeDot={{ r: 4, stroke: 'var(--color-hoja)', strokeWidth: 2 }} />
-            ))}
-            <Tooltip cursor={{ stroke: 'var(--color-tinta-3)', strokeWidth: 1 }}
-              content={({ active, payload }) => {
-                if (!active || !payload?.length) return null
-                const d = payload[0].payload as (typeof datos)[number]
-                return (
-                  <div className="min-w-[13rem] rounded-lg border border-regla bg-hoja px-3 py-2.5 text-[0.8rem] shadow-lg">
-                    <div className="mb-1 text-tinta-3">{dia(d.hora)} · {hora(d.hora)}</div>
-                    {SERIES.map((s) => (
-                      <div key={s.clave} className="flex items-center justify-between gap-4">
-                        <span className="inline-flex items-center gap-2 text-tinta-2"><span className="h-0.5 w-3 rounded" style={{ background: s.color }} />{s.nombre}</span>
-                        <span className="cifra">{num(d[s.clave])}</span>
-                      </div>
-                    ))}
-                  </div>
-                )
-              }} />
-          </LineChart>
-        </ResponsiveContainer>
+      <div className="caja">
+        <div className="border-b border-regla-suave px-4 py-3">
+          <Leyenda elementos={SERIES.map((s) => ({ texto: s.nombre, marca: <span className="h-0.5 w-5" style={{ background: s.color }} /> }))} />
+        </div>
+        <div className="h-[280px] w-full px-2 pb-2 pt-3" role="img" aria-label={`PM2.5 medido y pronosticado en ${e.nombre} durante los últimos 7 días`}>
+          <ResponsiveContainer>
+            <LineChart data={datos} margin={MARGEN}>
+              <CartesianGrid {...RETICULA} />
+              <XAxis dataKey="hora" ticks={marcas} tickFormatter={(t: string) => dia(t)} {...EJE.x} />
+              <YAxis domain={[0, tope]} ticks={marcasY(tope)} {...EJE.y} />
+              <ReferenceLine y={25} stroke="var(--color-tinta-3)" strokeDasharray="5 4" />
+              {SERIES.map((s) => (
+                <Line key={s.clave} dataKey={s.clave} name={s.nombre} stroke={s.color} strokeWidth={s.ancho} dot={false}
+                  connectNulls={false} isAnimationActive={false} activeDot={{ r: 4, stroke: '#fff', strokeWidth: 2 }} />
+              ))}
+              <Tooltip cursor={{ stroke: 'var(--color-tinta-3)', strokeWidth: 1 }}
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null
+                  const d = payload[0].payload as (typeof datos)[number]
+                  return (
+                    <div className={`${TIP} min-w-[13rem]`}>
+                      <div className="mb-1 text-tinta-3">{dia(d.hora)}, {hora(d.hora)}</div>
+                      {SERIES.map((s) => (
+                        <div key={s.clave} className="flex items-center justify-between gap-4">
+                          <span className="inline-flex items-center gap-2 text-tinta-2"><span className="h-0.5 w-3" style={{ background: s.color }} />{s.nombre}</span>
+                          <span className="cifra font-medium">{num(d[s.clave])}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
-      {!hayPronosticos && (
-        <p className="mt-3 text-[0.85rem] text-tinta-2">
-          El servicio guarda pronósticos desde {desde ? `el ${dia(desde)}` : 'su puesta en marcha'}; las líneas de
-          pronóstico aparecen a medida que se cumplen sus horas.
-        </p>
-      )}
+      <p className="mt-3 max-w-[75ch] text-[0.875rem] leading-relaxed text-tinta-2">
+        Para cada hora se muestran dos de los pronósticos que el modelo hizo sobre ella: el de 6 horas antes (corto
+        plazo) y el de 24 horas antes (el más lejano). Las mediciones son datos en tiempo real, todavía sin validar.
+        {!hayPronosticos && <> El servicio guarda pronósticos desde {desde ? `el ${dia(desde)}` : 'su puesta en marcha'}; las líneas de pronóstico aparecen a medida que se cumplen sus horas.</>}
+      </p>
     </div>
   )
 }

@@ -31,4 +31,4 @@ export const CATEGORIAS: InfoCategoria[] = [
 
 export const POR_CLAVE = Object.fromEntries(CATEGORIAS.map((c) => [c.clave, c])) as Record<Categoria, InfoCategoria>
 
-export const SIN_DATOS = { color: '#c9c6bd', borde: '#8b887f' }
+export const SIN_DATOS = { color: '#c5cad1', borde: '#7d848d' }

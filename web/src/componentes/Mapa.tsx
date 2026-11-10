@@ -5,15 +5,13 @@ import type { Estacion } from '@/lib/tipos'
 
 // RF1: un punto por estación, con el color de la categoría del pronóstico para la hora en curso
 // (W22). Sin interpolar entre estaciones. Clic → muestra el pronóstico de esa estación.
+// La etiqueta solo aparece al pasar el cursor; la estación elegida se marca con un contorno oscuro.
 export function Mapa({ estaciones, elegida, onElegir }: {
   estaciones: Estacion[]; elegida: string; onElegir: (clave: string) => void
 }) {
   return (
-    <div className="mapa-sobrio relative h-[340px] overflow-hidden rounded-xl border border-regla md:h-full md:min-h-[440px]">
-      <MapContainer
-        center={[-0.165, -78.455]} zoom={11} scrollWheelZoom={false} className="h-full w-full"
-        attributionControl
-      >
+    <div className="mapa-sobrio relative h-[300px] md:h-full md:min-h-[420px]">
+      <MapContainer center={[-0.165, -78.455]} zoom={11} scrollWheelZoom={false} className="h-full w-full" attributionControl>
         <TileLayer
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -25,13 +23,13 @@ export function Mapa({ estaciones, elegida, onElegir }: {
           const activa = e.clave === elegida
           return (
             <CircleMarker
-              key={e.clave}
+              key={`${e.clave}-${activa}`}
               center={[e.lat, e.lon]}
-              radius={activa ? 15 : 11}
-              pathOptions={{ color: activa ? '#14181f' : c.borde, weight: activa ? 3 : 1.5, fillColor: c.color, fillOpacity: 1 }}
+              radius={activa ? 13 : 10}
+              pathOptions={{ color: activa ? '#161b22' : c.borde, weight: activa ? 3 : 1.5, fillColor: c.color, fillOpacity: 1 }}
               eventHandlers={{ click: () => onElegir(e.clave) }}
             >
-              <Tooltip direction="top" offset={[0, -12]} className="etiqueta-estacion" permanent={activa}>
+              <Tooltip direction="top" offset={[0, -10]} className="etiqueta-estacion">
                 <strong>{e.nombre}</strong>
                 <br />
                 {sin
