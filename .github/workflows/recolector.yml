@@ -1,4 +1,5 @@
-# Flujo de GitHub Actions que ejecuta el recolector una vez por hora.
+# Flujo de GitHub Actions que se ejecuta una vez por hora: recolector y,
+# desde el 10/11/2026, pronóstico del modelo propio (pronostico/).
 # El propio script decide si además toca guardar pronósticos (si falta la
 # emisión del bloque 00, 03, ..., 21 de Ecuador); ver DECISIONES.md (D2, D26).
 #
@@ -32,9 +33,10 @@ permissions:
 jobs:
   recolectar:
     runs-on: ubuntu-latest
-    # Límite duro: sin él, un proceso colgado podría consumir hasta 6 h de
-    # minutos del cupo del repositorio privado (D3).
-    timeout-minutes: 3
+    # Límite duro: sin él, un proceso colgado podría seguir hasta 6 h (D3).
+    # Desde el 10/11 incluye el pronóstico del modelo (DECISIONES.md, W1); con el
+    # repositorio público los minutos no tienen cupo.
+    timeout-minutes: 10
 
     steps:
       - name: Descargar el código
@@ -62,3 +64,12 @@ jobs:
           else
             python -m recolector.main
           fi
+
+      # Paso separado: si el pronóstico falla, la recolección de esta hora ya
+      # quedó guardada (criterio de robustez). Se ejecuta aunque el recolector
+      # haya fallado, porque usa las mediciones ya guardadas en la base.
+      - name: Pronóstico del modelo (XGBoost, 24 h)
+        if: ${{ !cancelled() }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python -m pronostico.main
