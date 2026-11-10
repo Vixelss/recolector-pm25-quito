@@ -54,11 +54,12 @@ export function Ultimos7Dias({ e, desde }: { e: Estacion; desde: string | null }
           </ResponsiveContainer>
         </div>
       </div>
-      <p className="mt-3 max-w-[75ch] text-[0.875rem] leading-relaxed text-tinta-2">
-        Para cada hora se muestran dos de los pronósticos que el modelo hizo sobre ella: el de 6 horas antes (corto
-        plazo) y el de 24 horas antes (el más lejano). Las mediciones son datos en tiempo real, todavía sin validar.
-        {!hayPronosticos && <> El servicio guarda pronósticos desde {desde ? `el ${dia(desde)}` : 'su puesta en marcha'}; las líneas de pronóstico aparecen a medida que se cumplen sus horas.</>}
-      </p>
+      {!hayPronosticos && (
+        <p className="mt-3 max-w-[75ch] text-[0.875rem] leading-relaxed text-tinta-2">
+          El servicio guarda pronósticos desde {desde ? `el ${dia(desde)}` : 'su puesta en marcha'}; las líneas de
+          pronóstico aparecen a medida que se cumplen sus horas.
+        </p>
+      )}
     </div>
   )
 }

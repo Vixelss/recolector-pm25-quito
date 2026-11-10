@@ -11,8 +11,6 @@ const MODELOS = [
   { clave: 'CAMS', nombre: 'CAMS (Copernicus)', color: 'var(--color-serie-3)' },
 ] as const
 
-// Por debajo de esta cantidad de comparaciones las cifras todavía cambian mucho de un día a otro
-const POCOS = 500
 
 function Cifra({ rotulo, valor, unidad, nota }: { rotulo: string; valor: string; unidad?: string; nota?: string }) {
   return (
@@ -62,11 +60,6 @@ export function Desempeno({ datos }: { datos: Datos }) {
         </span>
       </div>
 
-      {xgb.n < POCOS && (
-        <p className="rounded-md border border-regla bg-hundido px-4 py-2.5 text-[0.875rem] text-tinta-2">
-          Todavía hay pocos pronósticos comparados: las cifras pueden cambiar bastante en los primeros días de funcionamiento.
-        </p>
-      )}
 
       <dl className="caja grid gap-px overflow-hidden bg-regla-suave sm:grid-cols-2 lg:grid-cols-4">
         <Cifra rotulo="Error medio del modelo" valor={num(xgb.mae, 2)} unidad="µg/m³" nota="Promedio de la diferencia absoluta con lo medido" />
@@ -79,11 +72,7 @@ export function Desempeno({ datos }: { datos: Datos }) {
 
       <div>
         <h3 className="text-[1rem] font-semibold">Error medio por horizonte</h3>
-        <p className="mt-1 max-w-[75ch] text-[0.875rem] leading-relaxed text-tinta-2">
-          El horizonte es cuántas horas antes se hizo el pronóstico. Cada punto es el error promedio de los pronósticos
-          hechos con esa anticipación; lo normal es que crezca con el horizonte. Un horizonte aparece cuando ya pasaron
-          esas horas desde los primeros pronósticos.
-        </p>
+        <p className="mt-1 text-[0.875rem] text-tinta-2">Cuántas horas antes se hizo el pronóstico (1 a 24 h)</p>
         <div className="caja mt-3">
           <div className="border-b border-regla-suave px-4 py-3">
             <Leyenda elementos={MODELOS.slice(0, 2).map((m) => ({ texto: m.nombre, marca: <span className="h-0.5 w-5" style={{ background: m.color }} /> }))} />
@@ -115,10 +104,7 @@ export function Desempeno({ datos }: { datos: Datos }) {
 
       <div>
         <h3 className="text-[1rem] font-semibold">Comparación con CAMS</h3>
-        <p className="mt-1 max-w-[75ch] text-[0.875rem] leading-relaxed text-tinta-2">
-          CAMS publica un pronóstico cada 3 horas, así que esta comparación usa solo las horas en que los tres tienen
-          pronóstico. Por eso no aparece en el gráfico anterior y sus cifras no coinciden exactamente con las de arriba.
-        </p>
+        <p className="mt-1 text-[0.875rem] text-tinta-2">En las horas en que hay pronóstico de CAMS (el recolector lo guarda cada 3 horas)</p>
         <div className="caja mt-3 overflow-x-auto">
           <table className="w-full min-w-[34rem] text-left text-[0.875rem]">
             <thead className="bg-hundido text-[0.8125rem] text-tinta-3">

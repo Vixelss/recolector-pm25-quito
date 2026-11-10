@@ -47,7 +47,7 @@ export default function App() {
 
         <div className="mt-12 space-y-12">
           <Seccion titulo={`Próximas 24 horas en ${estacion.nombre}`}
-            bajada="Valor pronosticado de cada hora con su categoría y su rango probable.">
+            bajada="Valor pronosticado de cada hora con su categoría. Elige otra estación en el mapa o en la lista.">
             <GraficoPronostico e={estacion} umbral={datos.umbrales.aviso} />
           </Seccion>
 
@@ -56,7 +56,7 @@ export default function App() {
           </Seccion>
 
           <Seccion titulo={`Últimos 7 días en ${estacion.nombre}`}
-            bajada="Lo que se midió frente a lo que el modelo había pronosticado para esas mismas horas.">
+            bajada="Lo que se midió frente a lo que el modelo había pronosticado con 6 y con 24 horas de anticipación.">
             <Ultimos7Dias e={estacion} desde={datos.desempeno.pronosticos_desde} />
           </Seccion>
 
