@@ -228,3 +228,6 @@ web/public/datos.json
 
 # Capturas de las pruebas de la página
 web/pruebas/capturas/
+
+# La regla "lib/" de arriba es de Python; la carpeta de la web sí se versiona
+!web/src/lib/
