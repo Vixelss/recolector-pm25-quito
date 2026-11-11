@@ -89,7 +89,7 @@ jobs:
       id-token: write   # exigido por actions/deploy-pages
     environment:
       name: github-pages
-      url: ${{ steps.despliegue.outputs.page_url }}
+      url: ${{ steps.despliegue.outputs.page_url || steps.despliegue2.outputs.page_url }}
 
     steps:
       - name: Descargar el código
@@ -129,6 +129,21 @@ jobs:
         with:
           path: web/dist
 
+      # A veces GitHub todavía no registra el artefacto recién subido y
+      # deploy-pages responde "No artifacts named github-pages" (HW14). Si el
+      # primer intento falla, se espera y se publica una vez más. No se puede
+      # relanzar el trabajo a mano: subiría un segundo artefacto con el mismo
+      # nombre y deploy-pages fallaría por tener dos.
       - name: Publicar en GitHub Pages
         id: despliegue
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+
+      - name: Esperar antes de reintentar la publicación
+        if: ${{ steps.despliegue.outcome == 'failure' }}
+        run: sleep 20
+
+      - name: Publicar en GitHub Pages (segundo intento)
+        id: despliegue2
+        if: ${{ steps.despliegue.outcome == 'failure' }}
         uses: actions/deploy-pages@v5
