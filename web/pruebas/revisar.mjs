@@ -68,13 +68,13 @@ for (const [nombre, vista] of [['computadora', { width: 1440, height: 900 }], ['
 
   // Vista de tabla del pronóstico
   await pagina.getByRole('group', { name: 'Vista del pronóstico' }).getByRole('button', { name: 'Tabla' }).click()
-  const filas = await pagina.locator('table').filter({ hasText: 'Rango probable' }).locator('tbody tr').count()
+  const filas = await pagina.locator('table').filter({ hasText: 'Rango habitual' }).locator('tbody tr').count()
   const esperadas = await pagina.evaluate(async (n) => {
     const d = await (await fetch('datos.json', { cache: 'no-store' })).json()
     return d.estaciones.find((e) => e.nombre === n).pronostico.length
   }, nombre2)
   ok(filas === esperadas, `tabla del pronóstico con las ${esperadas} horas de datos.json (${filas})`)
-  await pagina.locator('table').filter({ hasText: 'Rango probable' }).scrollIntoViewIfNeeded().catch(() => {})
+  await pagina.locator('table').filter({ hasText: 'Rango habitual' }).scrollIntoViewIfNeeded().catch(() => {})
   await pagina.waitForTimeout(400)
   await pagina.screenshot({ path: `${carpeta}/${nombre}_tabla.png` })
 

@@ -21,12 +21,13 @@ export function PiePagina({ datos }: { datos: Datos }) {
           </p>
           <p>
             Las mediciones en tiempo real son preliminares (sin validar). Se obtienen convirtiendo a µg/m³ el índice AQI
-            de la EPA que publica AQICN para cada estación.
+            de la EPA que publica AQICN para cada estación, así que son una aproximación y no el registro validado de la
+            REMMAQ (la conversión tiene un error de redondeo de hasta ±0,25 µg/m³ en los valores habituales).
           </p>
           <p className="text-tinta-3">
             Modelo: XGBoost con un modelo por horizonte (1 a 24 h), entrenado con el registro validado de la REMMAQ de
-            2018 al {datos.modelo.fin_entrenamiento.split('-').reverse().join('/')}. Rango probable: errores de la
-            evaluación en vivo ({datos.modelo.banda}).
+            2018 al {datos.modelo.fin_entrenamiento.split('-').reverse().join('/')}. Rango habitual: percentiles 10 y 90
+            de los errores de la evaluación en vivo ({datos.modelo.banda}); es una aproximación, no una garantía.
           </p>
         </div>
         <div>

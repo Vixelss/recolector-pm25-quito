@@ -134,7 +134,7 @@ export function Desempeno({ datos }: { datos: Datos }) {
         Persistencia: repetir el último valor publicado. Error medio: promedio de la diferencia absoluta entre lo
         pronosticado y lo medido; sesgo: promedio de la diferencia (negativo: el pronóstico se quedó corto). Episodios:
         horas con más de 25 µg/m³; el modelo avisa cuando pronostica más de {datos.umbrales.aviso} µg/m³. Se calcula cada
-        hora con las mediciones publicadas por AQICN.
+        hora con las mediciones preliminares de AQICN convertidas a µg/m³.
       </p>
     </div>
   )

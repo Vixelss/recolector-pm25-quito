@@ -9,7 +9,7 @@ import { EJE, Leyenda, MARGEN, RETICULA, TIP } from './comunes'
 
 const AZUL = 'var(--color-serie-1)'
 
-// RF2 (24 h con valor y categoría) y RF9 (banda del 80 %, nota fija y aviso 20–25 µg/m³)
+// RF2 (24 h con valor y categoría) y RF9 (banda p10–p90 del error, nota fija y aviso 20–25 µg/m³)
 export function GraficoPronostico({ e, umbral }: { e: Estacion; umbral: number }) {
   const [vista, setVista] = useState<'grafico' | 'tabla'>('grafico')
   const datos = e.pronostico.map((p) => ({ ...p, etiqueta: hora(p.hora), banda: [p.inferior, p.superior] as [number, number] }))
@@ -25,7 +25,7 @@ export function GraficoPronostico({ e, umbral }: { e: Estacion; umbral: number }
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-regla-suave px-4 py-3">
           <Leyenda elementos={[
             { texto: 'Pronóstico', marca: <span className="h-0.5 w-5" style={{ background: AZUL }} /> },
-            { texto: 'Rango probable (8 de cada 10 horas)', marca: <span className="h-3 w-5" style={{ background: 'color-mix(in srgb, var(--color-serie-1) 16%, transparent)' }} /> },
+            { texto: 'Rango habitual del error', marca: <span className="h-3 w-5" style={{ background: 'color-mix(in srgb, var(--color-serie-1) 16%, transparent)' }} /> },
             { texto: 'Límite de 25 µg/m³', marca: <span className="w-5 border-t-2 border-dashed border-tinta" /> },
             ...(avisos > 0 ? [{ texto: 'Cerca del límite', marca: <svg width="11" height="11" aria-hidden><path d="M5.5 1 10.5 10H.5Z" fill="var(--color-aviso)" /></svg> }] : []),
           ]} />
@@ -59,7 +59,7 @@ export function GraficoPronostico({ e, umbral }: { e: Estacion; umbral: number }
                       <div className={`${TIP} min-w-[12rem]`}>
                         <div className="text-tinta-3">{dia(d.hora)}, {hora(d.hora)} · dentro de {d.h} h</div>
                         <div className="mt-1 flex items-baseline gap-1.5"><span className="cifra text-xl font-semibold">{num(d.pm25)}</span><span className="text-tinta-3">µg/m³</span></div>
-                        <div className="text-tinta-2">Rango probable: <span className="cifra">{num(d.inferior)}–{num(d.superior)}</span></div>
+                        <div className="text-tinta-2">Rango habitual: <span className="cifra">{num(d.inferior)}–{num(d.superior)}</span></div>
                         <div className="mt-1.5 flex flex-wrap gap-1"><InsigniaCategoria categoria={d.categoria} />{d.cerca_del_limite && <AvisoLimite corto />}</div>
                       </div>
                     )
@@ -74,7 +74,7 @@ export function GraficoPronostico({ e, umbral }: { e: Estacion; umbral: number }
               <thead className="sticky top-0 bg-hundido text-[0.8125rem] text-tinta-3">
                 <tr className="border-b border-regla">
                   <th className="px-4 py-2 font-medium">Hora</th><th className="px-4 py-2 font-medium">Pronóstico (µg/m³)</th>
-                  <th className="px-4 py-2 font-medium">Rango probable</th><th className="px-4 py-2 font-medium">Categoría</th>
+                  <th className="px-4 py-2 font-medium">Rango habitual</th><th className="px-4 py-2 font-medium">Categoría</th>
                 </tr>
               </thead>
               <tbody>
@@ -96,9 +96,10 @@ export function GraficoPronostico({ e, umbral }: { e: Estacion; umbral: number }
       </div>
 
       <p className="mt-3 max-w-[75ch] text-[0.875rem] leading-relaxed text-tinta-2">
-        El pronóstico es aproximado: en 8 de cada 10 horas el valor real queda dentro de la franja sombreada. En las
-        horas más contaminadas el modelo suele quedarse corto. Por eso, las horas pronosticadas entre {umbral} y 25 µg/m³
-        se marcan como «cerca del límite: podría ser aceptable».
+        El pronóstico es aproximado. La franja sombreada muestra el rango en que suele quedar el valor real: en las
+        evaluaciones del modelo, en torno a 8 de cada 10 horas cayeron dentro, pero no es una garantía. En las horas más
+        contaminadas el modelo suele quedarse corto y el valor real puede quedar por encima de la franja. Por eso, las horas
+        pronosticadas entre {umbral} y 25 µg/m³ se marcan como «cerca del límite: podría ser aceptable».
       </p>
     </div>
   )
