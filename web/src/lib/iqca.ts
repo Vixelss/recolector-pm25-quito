@@ -16,15 +16,15 @@ export interface InfoCategoria {
 
 export const CATEGORIAS: InfoCategoria[] = [
   { clave: 'deseable', nombre: 'Deseable', indice: '0–50', rango: '0–25', color: '#ffffff', borde: '#1d2430', tinta: '#1d2430',
-    significado: 'Calidad del aire óptima.' },
+    significado: 'Óptima.' },
   { clave: 'aceptable', nombre: 'Aceptable', indice: '51–100', rango: '26–50', color: '#2f9e44', borde: '#1f6e2f', tinta: '#ffffff',
-    significado: 'Calidad del aire buena.' },
+    significado: 'Buena.' },
   { clave: 'precaución', nombre: 'Precaución', indice: '101–200', rango: '51–150', color: '#8a9099', borde: '#5c626b', tinta: '#ffffff',
-    significado: 'Puede afectar a personas con alta sensibilidad o problemas de salud.' },
+    significado: 'Puede afectar a personas con alta sensibilidad o condiciones de salud preexistentes.' },
   { clave: 'alerta', nombre: 'Alerta', indice: '201–300', rango: '151–250', color: '#f2c230', borde: '#a37f0f', tinta: '#1d2430',
     significado: 'Puede afectar a personas sensibles o con problemas de salud.' },
   { clave: 'alarma', nombre: 'Alarma', indice: '301–400', rango: '251–350', color: '#f08a24', borde: '#a85a10', tinta: '#1d2430',
-    significado: 'Puede afectar a gran parte de la población.' },
+    significado: 'Puede afectar a gran parte de la población y representar un riesgo para personas sensibles.' },
   { clave: 'emergencia', nombre: 'Emergencia', indice: '401–500', rango: 'más de 350', color: '#d63b3b', borde: '#8f2222', tinta: '#ffffff',
     significado: 'Peligrosa para toda la población.' },
 ]
